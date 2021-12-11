@@ -26,6 +26,7 @@ public class OpenWorldEditorPlugin : ModuleRules
 			new string[]
 			{
 				"Core",
+				"Projects",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,6 +39,14 @@ public class OpenWorldEditorPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"UnrealEd",
+				"OpenWorldPlugin",
+				"EditorStyle",
+				"LevelEditor",
+				"EditorFramework",
+				"EditorWidgets",
+				"PropertyEditor",
+				"InputCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
@@ -46,7 +55,7 @@ public class OpenWorldEditorPlugin : ModuleRules
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
-				// ... add any modules that your module loads dynamically here ...
+				"AssetTools",
 			}
 			);
 	}
