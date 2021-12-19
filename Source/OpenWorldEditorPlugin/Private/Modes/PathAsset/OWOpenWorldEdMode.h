@@ -47,6 +47,7 @@ public:
 	const static FEditorModeID EM_OpenWorldEdModeId;
 	const static FName PathAssetSelect_Tool;
 	const static FName PathAssetCreateNode_Tool;
+    static const FName PathAssetConnection_Tool;
 
 public:
 	UOpenWorldEdMode();

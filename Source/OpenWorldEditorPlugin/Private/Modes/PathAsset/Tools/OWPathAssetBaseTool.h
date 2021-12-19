@@ -13,7 +13,7 @@
  * Builder for UOWPathAssetInteractiveTool
  */
 UCLASS()
-class  UOWPathAssetInteractiveToolBuilder : public UInteractiveToolBuilder
+class  UOWPathAssetBaseToolBuilder : public UInteractiveToolBuilder
 {
 	GENERATED_BODY()
 

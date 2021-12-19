@@ -5,13 +5,16 @@
 #include "OpenWorldEditorPluginStyle.h"
 #include "Tools/OWPathAssetBaseTool.h"
 #include "InteractiveToolManager.h"
+#include "OWPathAssetConnection.h"
 #include "OWPathAssetEdModeToolkit.h"
+#include "Tools/OWPathAssetConnectionTool.h"
 #include "Tools/OWPathAssetSelectTool.h"
 #include "Tools/OWPathAssetCreateNodeTool.h"
 
 const FEditorModeID UOpenWorldEdMode::EM_OpenWorldEdModeId = TEXT("EM_OpenWorldEdModeId");
 const FName UOpenWorldEdMode::PathAssetSelect_Tool = FName("OpenWorldEdMode_PathAssetSelect_Tool");
 const FName UOpenWorldEdMode::PathAssetCreateNode_Tool = FName("OpenWorldEdMode_PathAssetCreateNode_Tool");
+const FName UOpenWorldEdMode::PathAssetConnection_Tool = FName("OpenWorldEdMode_PathAssetConnection_Tool");
 
 UOpenWorldEdMode::UOpenWorldEdMode()
 {
@@ -42,9 +45,11 @@ void UOpenWorldEdMode::Enter()
 
 	RegisterTool(UICommands.PathAssetSelectTool, PathAssetSelect_Tool.ToString(), NewObject<UOWPathAssetSelectToolBuilder>(this));
 	RegisterTool(UICommands.PathAssetCreateNodeTool, PathAssetCreateNode_Tool.ToString(), NewObject<UOWPathAssetCreateNodeToolBuilder>(this));
+	RegisterTool(UICommands.PathAssetConnectionTool, PathAssetConnection_Tool.ToString(), NewObject<UOWPathAssetConnectionToolBuilder>(this));
 
 	GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetSelect_Tool.ToString());
 	GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetCreateNode_Tool.ToString());
+	GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetConnection_Tool.ToString());
 }
 
 void UOpenWorldEdMode::Exit()

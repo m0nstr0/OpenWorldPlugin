@@ -10,7 +10,7 @@
 /*
  * ToolBuilder
  */
-UInteractiveTool* UOWPathAssetInteractiveToolBuilder::BuildTool(const FToolBuilderState& SceneState) const
+UInteractiveTool* UOWPathAssetBaseToolBuilder::BuildTool(const FToolBuilderState& SceneState) const
 {
 	UOWPathAssetBaseTool* NewTool = NewObject<UOWPathAssetBaseTool>(SceneState.ToolManager);
 	NewTool->SetWorld(SceneState.World);

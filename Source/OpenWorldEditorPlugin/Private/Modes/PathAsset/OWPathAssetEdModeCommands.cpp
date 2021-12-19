@@ -15,6 +15,9 @@ void FOWPathAssetEdModeCommands::RegisterCommands()
 
 	UI_COMMAND(PathAssetCreateNodeTool, "Create", "Create Nodes", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::Two));
 	ToolCommands.Add(PathAssetCreateNodeTool);
+
+	UI_COMMAND(PathAssetConnectionTool, "Connect", "Create Connections", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::Three));
+	ToolCommands.Add(PathAssetConnectionTool);
 }
 #undef LOCTEXT_NAMESPACE
 

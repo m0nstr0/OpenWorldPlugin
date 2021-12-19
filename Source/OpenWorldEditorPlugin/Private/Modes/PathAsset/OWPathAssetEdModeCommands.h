@@ -29,7 +29,7 @@ public:
 public:
 	TSharedPtr<FUICommandInfo> PathAssetSelectTool;
 	TSharedPtr<FUICommandInfo> PathAssetCreateNodeTool;
-
+	TSharedPtr<FUICommandInfo> PathAssetConnectionTool;
 protected:
 	TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> Commands;
 };

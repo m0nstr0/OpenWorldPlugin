@@ -33,19 +33,11 @@ public:
 			Set("OWPathAssetEdMode", OWPathAssetEdModeThumnailBrush40);
 			Set("OWPathAssetEdMode.small", OWPathAssetEdModeThumnailBrush20);
 		}
-
-		//FSlateBrush* RoundBrush = new FSlateRoundedBoxBrush(FStyleColors::White, 1.f, FStyleColors::Foldout, 1.f);
-		//FSlateBrush* RoundBrush = new FSlateColorBrush(FStyleColors::White);
-
-		{
-			FTextBlockStyle MonospacedText = FTextBlockStyle(FTextBlockStyle::GetDefault());// FAppStyle::Get().GetWidgetStyle<FTextBlockStyle>("MonospacedText");
-			MonospacedText.SetFont(FStarshipCoreStyle::GetDefaultFontStyle("Italic", 72));
-			Set("MonospacedText123", MonospacedText);
-		}
-
+		
 		{
 			Set("OpenWorldEdMode.PathAssetSelectTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/Select_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
 			Set("OpenWorldEdMode.PathAssetCreateNodeTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/CreateNode_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
+			Set("OpenWorldEdMode.PathAssetConnectionTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/CreateConnection_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
 		}
 
 		FSlateStyleRegistry::RegisterSlateStyle(*this);
