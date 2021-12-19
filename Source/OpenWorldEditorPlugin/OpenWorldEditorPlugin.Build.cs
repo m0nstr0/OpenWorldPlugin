@@ -46,7 +46,9 @@ public class OpenWorldEditorPlugin : ModuleRules
 				"EditorFramework",
 				"EditorWidgets",
 				"PropertyEditor",
-				"InputCore"
+				"InputCore",
+                "InteractiveToolsFramework",
+                "EditorInteractiveToolsFramework",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

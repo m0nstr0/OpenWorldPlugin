@@ -6,17 +6,18 @@
 #include "AssetTypeActions/AssetTypeActions_OWPathAsset.h"
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleRegistry.h"
-#include "EditorModeRegistry.h"
-#include "Editors/PathAssetEdMode/OWPathAssetEdMode.h"
 #include "OpenWorldEditorPluginStyle.h"
+#include "Modes/PathAsset/OWPathAssetEdModeCommands.h"
+#include "Modes/PathAsset/Tools/OWPathAssetSelectTool.h"
 
 #define LOCTEXT_NAMESPACE "FOpenWorldEditorPluginModule"
 
 void FOpenWorldEditorPluginModule::StartupModule()
 {
-	FOpenWorldEditorPluginStyle::Get();
+	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FOpenWorldEditorPluginModule::OnPostEngineInit);
 
-	FEditorModeRegistry::Get().RegisterMode<FOWPathAssetEdMode>(FOWPathAssetEdMode::EM_OWPathAssetEdModeId, LOCTEXT("PedPathEdModeName", "Open World Path Editor"), FSlateIcon(FOpenWorldEditorPluginStyle::Get().GetStyleSetName(), "OWPathAssetEdMode", "OWPathAssetEdMode.small"), true);
+	FOpenWorldEditorPluginStyle::Get();
+	FOWPathAssetEdModeCommands::Register();
 
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	OpenWorldAssetCategoryBit = AssetTools.RegisterAdvancedAssetCategory(FName(TEXT("OpenWorld")), LOCTEXT("OpenWorldAssetCategory", "Open World"));
@@ -24,9 +25,17 @@ void FOpenWorldEditorPluginModule::StartupModule()
 	RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeActions_OWPathAsset(OpenWorldAssetCategoryBit)));
 }
 
+void FOpenWorldEditorPluginModule::OnPostEngineInit()
+{
+	FOWPathAssetSelectToolActionCommands::Register();
+}
+
 void FOpenWorldEditorPluginModule::ShutdownModule()
 {
-	FEditorModeRegistry::Get().UnregisterMode(FOWPathAssetEdMode::EM_OWPathAssetEdModeId);
+	FCoreDelegates::OnPostEngineInit.RemoveAll(this);
+
+	FOWPathAssetSelectToolActionCommands::Unregister();
+	FOWPathAssetEdModeCommands::Unregister();
 	UnRegisterAssetTypeAction();
 }
 
@@ -47,6 +56,7 @@ void FOpenWorldEditorPluginModule::RegisterAssetTypeAction(IAssetTools& AssetToo
 	AssetTools.RegisterAssetTypeActions(Action);
 	RegisteredAssetTypeActions.Add(Action);
 }
+
 
 #undef LOCTEXT_NAMESPACE
 	

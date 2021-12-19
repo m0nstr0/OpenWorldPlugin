@@ -43,6 +43,11 @@ public:
 			Set("MonospacedText123", MonospacedText);
 		}
 
+		{
+			Set("OpenWorldEdMode.PathAssetSelectTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/Select_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
+			Set("OpenWorldEdMode.PathAssetCreateNodeTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/CreateNode_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
+		}
+
 		FSlateStyleRegistry::RegisterSlateStyle(*this);
 	}
 

@@ -19,10 +19,10 @@ public:
 
 	UOWPathAsset() : Height(180.f), Radius(33.f) {}
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "10.0"))
+	UPROPERTY(EditAnywhere, Category = PathAsset, meta = (ClampMin = "10.0"))
 	float Height;
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "10.0"))
+	UPROPERTY(EditAnywhere, Category = PathAsset, meta = (ClampMin = "10.0"))
 	float Radius;
 
 	UPROPERTY()

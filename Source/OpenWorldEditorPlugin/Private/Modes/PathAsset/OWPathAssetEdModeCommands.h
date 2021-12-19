@@ -15,22 +15,22 @@ class FOWPathAssetEdModeCommands : public TCommands<FOWPathAssetEdModeCommands>
 public:
 	FOWPathAssetEdModeCommands()
 		: TCommands<FOWPathAssetEdModeCommands>(
-			TEXT("PathAssetEdMode"),
+			TEXT("OpenWorldEdMode"),
 			FText::FromString(TEXT("Open World Path Asset Editor")),
 			NAME_None,
-			FEditorStyle::GetStyleSetName()
+			FName("OpenWorldPlugin")
 			)
 	{}
 
 	virtual void RegisterCommands() override;
 
-public:
+	static TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> GetCommands();
 
-	TSharedPtr<FUICommandInfo> AddConnectedNodeCommand;
-	TSharedPtr<FUICommandInfo> AddUnConnectedNodeCommand;
-	TSharedPtr<FUICommandInfo> SnapNodeToGroundCommand;
-	TSharedPtr<FUICommandInfo> DeleteNodeCommand;
-	TSharedPtr<FUICommandInfo> AddConnectionCommand;
-	TSharedPtr<FUICommandInfo> DeleteConnectionCommand;
-	TSharedPtr<FUICommandInfo> SelectCommand;
+public:
+	TSharedPtr<FUICommandInfo> PathAssetSelectTool;
+	TSharedPtr<FUICommandInfo> PathAssetCreateNodeTool;
+
+protected:
+	TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> Commands;
 };
+
