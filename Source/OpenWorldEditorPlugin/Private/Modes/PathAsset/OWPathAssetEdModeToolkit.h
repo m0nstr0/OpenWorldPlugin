@@ -14,7 +14,8 @@ class FOWPathAssetEdModeToolkit : public FModeToolkit
 {
 public:
 	FOWPathAssetEdModeToolkit();
-	virtual void Init(const TSharedPtr<IToolkitHost>& InitToolkitHost, TWeakObjectPtr<UEdMode> InOwningMode) override;
+    void CreateViewportOverlayWidget();
+    virtual void Init(const TSharedPtr<IToolkitHost>& InitToolkitHost, TWeakObjectPtr<UEdMode> InOwningMode) override;
 	virtual FName GetToolkitFName() const override;
 	virtual FText GetBaseToolkitName() const override;
 	virtual void GetToolPaletteNames(TArray<FName>& PaletteNames) const override;
@@ -25,4 +26,11 @@ public:
 	void UpdateModeProperties(const TArray<UObject*>& Objects);
 	void UpdateActiveToolProperties(UInteractiveTool* Tool);
 	void OnToolPaletteChanged(FName PaletteName) override;
+
+	void OnConnectionToolNodesSelected(const TObjectPtr<class UOWPathAssetNode> LeftNode, const TObjectPtr<class UOWPathAssetNode> RightNode);
+    void ConnectionToolProcessSelectedNodes(const bool IsNeedToLink) const;
+
+private:
+	TSharedPtr<SWidget> ViewportOverlayWidget;
+    bool IsTwoNodesSelectedToLink;
 };

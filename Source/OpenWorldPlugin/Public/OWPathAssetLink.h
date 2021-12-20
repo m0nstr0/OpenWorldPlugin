@@ -5,19 +5,23 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Components/SplineComponent.h"
-#include "OWPathAssetConnection.generated.h"
+#include "OWPathAssetLink.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OPENWORLDPLUGIN_API UOWPathAssetConnection : public UObject
+class OPENWORLDPLUGIN_API UOWPathAssetLink : public UObject
 {
 	GENERATED_BODY()
 	
 	UPROPERTY()
 	FSplineCurves Spline;
 
+public:
 	UPROPERTY()
-	TArray<TObjectPtr<class UOWPathAssetNode>> Nodes;
+    TObjectPtr<class UOWPathAssetNode> LeftNode;
+
+	UPROPERTY()
+	TObjectPtr<class UOWPathAssetNode> RightNode;
 };

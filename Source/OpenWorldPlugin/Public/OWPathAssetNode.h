@@ -20,5 +20,5 @@ public:
 	FVector Location;
 
 	UPROPERTY()
-	TArray<TObjectPtr<class UOWPathAssetConnection>> Connections;
+	TArray<TObjectPtr<class UOWPathAssetLink>> Connections;
 };

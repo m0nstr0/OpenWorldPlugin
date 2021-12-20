@@ -6,6 +6,7 @@
 #include "ToolBuilderUtil.h"
 #include "OWPathAsset.h"
 #include "OWPathAssetHitProxies.h"
+#include "OWPathAssetLink.h"
 
 /*
  * ToolBuilder
@@ -23,15 +24,10 @@ void UOWPathAssetBaseTool::SetWorld(UWorld* World)
 	this->TargetWorld = World;
 }
 
-
 void UOWPathAssetBaseTool::Setup()
 {
 	UInteractiveTool::Setup();
-
-	//Properties = NewObject<UOWPathAssetInteractiveToolProperties>(this, "Path Asset");
-	//AddToolPropertySource(Properties);
 }
-
 
 void UOWPathAssetBaseTool::Shutdown(EToolShutdownType ShutdownType)
 {
@@ -50,6 +46,11 @@ void UOWPathAssetBaseTool::Render(IToolsContextRenderAPI* RenderAPI)
  	for (int32 i = 0; i < PathAsset->Nodes.Num(); i++) {
 		DrawNode(NormalColor, PathAsset, PathAsset->Nodes[i], RenderAPI);
  	}
+
+	FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
+	for (int32 i = 0; i < PathAsset->Links.Num(); i++) {
+		PDI->DrawLine(FVector(PathAsset->Links[i]->LeftNode->Location), FVector(PathAsset->Links[i]->RightNode->Location), NormalColor, SDPG_Foreground);
+	}
 }
 
 bool UOWPathAssetBaseTool::RemoveToolPropertySourceObject(UObject* PropertySet)

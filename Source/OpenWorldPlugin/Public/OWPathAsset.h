@@ -28,6 +28,9 @@ public:
 	UPROPERTY()
 	TArray<UOWPathAssetNode*> Nodes;
 
+	UPROPERTY()
+    TArray<TObjectPtr<class UOWPathAssetLink>> Links;
+
 	UFUNCTION(BlueprintCallable)
 	TArray<UOWPathAssetNode*> GetNodes() const
 	{

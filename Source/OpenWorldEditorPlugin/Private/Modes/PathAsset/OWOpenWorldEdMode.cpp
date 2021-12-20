@@ -5,7 +5,7 @@
 #include "OpenWorldEditorPluginStyle.h"
 #include "Tools/OWPathAssetBaseTool.h"
 #include "InteractiveToolManager.h"
-#include "OWPathAssetConnection.h"
+#include "OWPathAssetLink.h"
 #include "OWPathAssetEdModeToolkit.h"
 #include "Tools/OWPathAssetConnectionTool.h"
 #include "Tools/OWPathAssetSelectTool.h"
@@ -47,9 +47,9 @@ void UOpenWorldEdMode::Enter()
 	RegisterTool(UICommands.PathAssetCreateNodeTool, PathAssetCreateNode_Tool.ToString(), NewObject<UOWPathAssetCreateNodeToolBuilder>(this));
 	RegisterTool(UICommands.PathAssetConnectionTool, PathAssetConnection_Tool.ToString(), NewObject<UOWPathAssetConnectionToolBuilder>(this));
 
-	GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetSelect_Tool.ToString());
-	GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetCreateNode_Tool.ToString());
-	GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetConnection_Tool.ToString());
+	//GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetSelect_Tool.ToString());
+	//GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetCreateNode_Tool.ToString());
+	//GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetConnection_Tool.ToString());
 }
 
 void UOpenWorldEdMode::Exit()

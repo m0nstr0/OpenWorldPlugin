@@ -10,6 +10,7 @@
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Styling/StyleColors.h"
 #include "Styling/AppStyle.h"
+#include "Styling/SlateStyleMacros.h"
 #include "Styling/StarshipCoreStyle.h"
 
 class FOpenWorldEditorPluginStyle : public FSlateStyleSet
@@ -30,14 +31,16 @@ public:
 		}
 
 		if (OWPathAssetEdModeThumnailBrush20 && OWPathAssetEdModeThumnailBrush40) {
-			Set("OWPathAssetEdMode", OWPathAssetEdModeThumnailBrush40);
-			Set("OWPathAssetEdMode.small", OWPathAssetEdModeThumnailBrush20);
+			Set("OpenWorldEdMode", OWPathAssetEdModeThumnailBrush40);
+			Set("OpenWorldEdMode.small", OWPathAssetEdModeThumnailBrush20);
 		}
 		
 		{
 			Set("OpenWorldEdMode.PathAssetSelectTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/Select_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
 			Set("OpenWorldEdMode.PathAssetCreateNodeTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/CreateNode_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
 			Set("OpenWorldEdMode.PathAssetConnectionTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/CreateConnection_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
+			Set("OpenWorldEdMode.PathAssetConnectionTool.link", new IMAGE_BRUSH_SVG(TEXT("Resources/Linked"), FVector2D(16.f, 16.f)));
+			Set("OpenWorldEdMode.PathAssetConnectionTool.unlink", new IMAGE_BRUSH_SVG(TEXT("Resources/Unlinked"), FVector2D(16.f, 16.f)));
 		}
 
 		FSlateStyleRegistry::RegisterSlateStyle(*this);

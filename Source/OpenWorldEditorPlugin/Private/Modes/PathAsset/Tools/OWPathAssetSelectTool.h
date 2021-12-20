@@ -44,7 +44,7 @@ public:
 };
 
 UCLASS()
-class UOWPathAssetSelectionContext : public UObject
+class UOWPathAssetSelectToolSelectionContext : public UObject
 {
 	GENERATED_BODY()
 
@@ -101,7 +101,7 @@ public:
 	virtual void Shutdown(EToolShutdownType ShutdownType) override;
 	virtual void Render(IToolsContextRenderAPI* RenderAPI) override;
 
-	friend UOWPathAssetSelectionContext;
+	friend UOWPathAssetSelectToolSelectionContext;
 
 protected:
     virtual void RegisterActions(FInteractiveToolActionSet& ActionSet) override;
@@ -115,7 +115,7 @@ private:
 	TObjectPtr<class UCombinedTransformGizmo> TransformGizmo;
 
 	UPROPERTY(Transient)
-	TObjectPtr<UOWPathAssetSelectionContext> SelectionContext;
+	TObjectPtr<UOWPathAssetSelectToolSelectionContext> SelectionContext;
 };
 
 

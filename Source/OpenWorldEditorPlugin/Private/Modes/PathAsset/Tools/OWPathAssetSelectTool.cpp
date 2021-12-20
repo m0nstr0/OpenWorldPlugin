@@ -36,7 +36,7 @@ void UOWPathAssetSelectTool::Setup()
 {
 	UInteractiveTool::Setup();
 
-	SelectionContext = NewObject<UOWPathAssetSelectionContext>(this);
+	SelectionContext = NewObject<UOWPathAssetSelectToolSelectionContext>(this);
 	SelectionContext->SetFlags(EObjectFlags::RF_Transactional);
 	SelectionContext->Setup(this);
 }
@@ -55,17 +55,7 @@ void UOWPathAssetSelectTool::Render(IToolsContextRenderAPI* RenderAPI)
 		return;
 	}
 
-    const TObjectPtr<UOWPathAsset> PathAsset = GetPathAsset();
-    const TObjectPtr<UOWPathAssetNode> PathAssetNode = SelectionContext->GetSelectedNode();
-	constexpr FColor DrawColor(255, 128, 0);
-	const int32 CapsuleSides = FMath::Clamp<int32>(PathAsset->Radius / 4.f, 16, 64);
-
-	FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
-
-	PDI->SetHitProxy(new HOWPathAssetNodeHitProxy(PathAssetNode));
-	DrawWireCapsule(PDI, PathAssetNode->Location, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, DrawColor, PathAsset->Radius, PathAsset->Height / 2.f, CapsuleSides, SDPG_Foreground);
-	PDI->DrawPoint(PathAssetNode->Location, DrawColor, 30.f, SDPG_Foreground);
-	PDI->SetHitProxy(nullptr);
+	DrawNode(FColor(255, 128, 0), GetPathAsset(), SelectionContext->GetSelectedNode(), RenderAPI);
 }
 
 
@@ -119,7 +109,7 @@ void UOWPathAssetSelectTool::DoSnapAction() const
 
 }
 
-void UOWPathAssetSelectionContext::Setup(UOWPathAssetSelectTool* InOwningTool)
+void UOWPathAssetSelectToolSelectionContext::Setup(UOWPathAssetSelectTool* InOwningTool)
 {
 	OwningTool = InOwningTool;
 
@@ -128,30 +118,30 @@ void UOWPathAssetSelectionContext::Setup(UOWPathAssetSelectTool* InOwningTool)
 	TransformGizmo->SetVisibility(false);
 }
 
-void UOWPathAssetSelectionContext::Shutdown()
+void UOWPathAssetSelectToolSelectionContext::Shutdown()
 {
 	UInteractiveGizmoManager* GizmoManager = OwningTool->GetToolManager()->GetPairedGizmoManager();
 	GizmoManager->DestroyAllGizmosByOwner(this);
 	TransformGizmo = nullptr;
 }
 
-void UOWPathAssetSelectionContext::SelectAsset(UOWPathAsset* InPathAsset)
+void UOWPathAssetSelectToolSelectionContext::SelectAsset(UOWPathAsset* InPathAsset)
 {
 	PathAsset = InPathAsset;
 	SelectNode(nullptr, true);
 }
 
-UOWPathAsset* UOWPathAssetSelectionContext::GetSelectedAsset() const
+UOWPathAsset* UOWPathAssetSelectToolSelectionContext::GetSelectedAsset() const
 {
 	return PathAsset;
 }
 
-bool UOWPathAssetSelectionContext::IsAssetSelected() const
+bool UOWPathAssetSelectToolSelectionContext::IsAssetSelected() const
 {
 	return PathAsset != nullptr;
 }
 
-void UOWPathAssetSelectionContext::SelectNode(UOWPathAssetNode* InPathAssetNode, bool ForceUpdate)
+void UOWPathAssetSelectToolSelectionContext::SelectNode(UOWPathAssetNode* InPathAssetNode, bool ForceUpdate)
 {
 	if (!ForceUpdate && (!IsAssetSelected() || InPathAssetNode == PathAssetNode)) {
         return;
@@ -165,17 +155,17 @@ void UOWPathAssetSelectionContext::SelectNode(UOWPathAssetNode* InPathAssetNode,
 	OwningTool->CleanToolPropertySource(PathAssetNode);
 }
 
-UOWPathAssetNode* UOWPathAssetSelectionContext::GetSelectedNode() const
+UOWPathAssetNode* UOWPathAssetSelectToolSelectionContext::GetSelectedNode() const
 {
 	return PathAssetNode;
 }
 
-bool UOWPathAssetSelectionContext::IsNodeSelected() const
+bool UOWPathAssetSelectToolSelectionContext::IsNodeSelected() const
 {
 	return PathAssetNode != nullptr;
 }
 
-void UOWPathAssetSelectionContext::DeleteSelectedNode()
+void UOWPathAssetSelectToolSelectionContext::DeleteSelectedNode()
 {
 	if (!IsNodeSelected() || !IsAssetSelected()) {
 		return;
@@ -194,7 +184,7 @@ void UOWPathAssetSelectionContext::DeleteSelectedNode()
 	CreateTransformGizmo();
 }
 
-void UOWPathAssetSelectionContext::FocusSelectedNode() const
+void UOWPathAssetSelectToolSelectionContext::FocusSelectedNode() const
 {
 	if (!IsNodeSelected() || !IsAssetSelected()) {
 		return;
@@ -205,7 +195,7 @@ void UOWPathAssetSelectionContext::FocusSelectedNode() const
 	}
 }
 
-void UOWPathAssetSelectionContext::CreateTransformGizmo()
+void UOWPathAssetSelectToolSelectionContext::CreateTransformGizmo()
 {
 	if (!IsAssetSelected() || !IsNodeSelected()) {
 		TransformGizmo->SetVisibility(false);
@@ -214,7 +204,7 @@ void UOWPathAssetSelectionContext::CreateTransformGizmo()
 
 	UOWPathAssetNodeTransformProxy* Proxy = NewObject<UOWPathAssetNodeTransformProxy>(this);
 	Proxy->PathAssetNodeRef = nullptr;
-	Proxy->OnTransformChanged.AddUObject(this, &UOWPathAssetSelectionContext::DoMoveNode);
+	Proxy->OnTransformChanged.AddUObject(this, &UOWPathAssetSelectToolSelectionContext::DoMoveNode);
 	//Proxy->OnTransformChangedUndoRedo
 	Proxy->PathAssetNodeRef = PathAssetNode;
 	Proxy->SetTransform(FTransform(PathAssetNode->Location));
@@ -223,7 +213,7 @@ void UOWPathAssetSelectionContext::CreateTransformGizmo()
 	TransformGizmo->SetVisibility(true);
 }
 
-void UOWPathAssetSelectionContext::DoMoveNode(UTransformProxy* TransformProxy, FTransform NewTransform)
+void UOWPathAssetSelectToolSelectionContext::DoMoveNode(UTransformProxy* TransformProxy, FTransform NewTransform)
 {
 	UOWPathAssetNodeTransformProxy* Proxy = Cast<UOWPathAssetNodeTransformProxy>(TransformProxy);
 	if (Proxy->PathAssetNodeRef) {
@@ -235,7 +225,7 @@ void UOWPathAssetSelectionContext::DoMoveNode(UTransformProxy* TransformProxy, F
 	}
 }
 
-void UOWPathAssetSelectionContext::PostEditUndo()
+void UOWPathAssetSelectToolSelectionContext::PostEditUndo()
 {
 	UObject::PostEditUndo();
 	OwningTool->CleanToolPropertySource(PathAssetNode);
