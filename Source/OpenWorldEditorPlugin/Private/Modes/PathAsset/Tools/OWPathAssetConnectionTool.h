@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "InteractiveTool.h"
 #include "InteractiveToolBuilder.h"
+#include "InteractiveToolChange.h"
 #include "OWPathAssetBaseTool.h"
+#include "OWPathAssetLink.h"
 #include "OWPathAssetNode.h"
 #include "BaseBehaviors/BehaviorTargetInterfaces.h"
 #include "OWPathAssetConnectionTool.generated.h"
@@ -24,72 +26,115 @@ public:
 	virtual UInteractiveTool* BuildTool(const FToolBuilderState& SceneState) const override;
 };
 
-UCLASS()
-class UOWPathAssetConnectionToolSelectionContext : public UObject
+
+/**
+ * Node selection transaction for UOWPathAssetConnectionTool
+ */
+class FOWPathAssetConnectionToolNodeSetChangeCommand : public FToolCommandChange
 {
-	GENERATED_BODY()
-
 public:
-	UPROPERTY()
-	TObjectPtr<class UOWPathAssetConnectionTool> OwningTool;
+	TWeakObjectPtr<class UOWPathAssetNode> NewLeftNode;
+	TWeakObjectPtr<class UOWPathAssetNode> NewRightNode;
+	TWeakObjectPtr<class UOWPathAssetNode> OldLeftNode;
+	TWeakObjectPtr<class UOWPathAssetNode> OldRightNode;
 
-	UPROPERTY()
-	TObjectPtr<class UOWPathAsset> PathAsset;
+	FOWPathAssetConnectionToolNodeSetChangeCommand(TWeakObjectPtr<class UOWPathAssetNode> InNewLeftNode, TWeakObjectPtr<class UOWPathAssetNode> InNewRightNode, TWeakObjectPtr<class UOWPathAssetNode> InOldLeftNode, TWeakObjectPtr<class UOWPathAssetNode> InOldRightNode) :
+		NewLeftNode(InNewLeftNode), NewRightNode(InNewRightNode), OldLeftNode(InOldLeftNode), OldRightNode(InOldRightNode)
+	{}
 
-	UPROPERTY()
-	TObjectPtr<class UOWPathAssetNode> LeftPathAssetNode;
-
-	UPROPERTY()
-	TObjectPtr<class UOWPathAssetNode> RightPathAssetNode;
-
-public:
-	void Setup(class UOWPathAssetConnectionTool* InOwningTool);
-	void Shutdown();
-
-	void SelectAsset(class UOWPathAsset* InPathAsset);
-	class UOWPathAsset* GetSelectedAsset() const;
-	bool IsAssetSelected() const;
-
-	void SelectNode(class UOWPathAssetNode* InPathAssetNode);
-	class UOWPathAssetNode* GetSelectedNode(bool IsLeftNode = true) const;
-
-	bool IsNodeSelected(bool IsLeftNode = true) const;
-	virtual void PostEditUndo() override;
-    void LinkNodes();
-    void UnlinkNodes();
+	virtual void Apply(UObject* Object) override;
+	virtual void Revert(UObject* Object) override;
+	virtual FString ToString() const override { return TEXT("ConnectionTool:FOWPathAssetConnectionToolNodeSetChangeCommand"); };
 };
 
 /**
- *
+ * Node link/unlink transaction for UOWPathAssetConnectionTool
  */
+class FOWPathAssetConnectionToolLinkNodeChangeCommand : public FToolCommandChange
+{
+public:
+	enum class OperationType
+	{
+	    Link,
+		Unlink
+	};
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOWPathAssetConnectionToolNodeSelected, const TObjectPtr<class UOWPathAssetNode> LeftNode, const TObjectPtr<class UOWPathAssetNode> RightNode)
+	TWeakObjectPtr<class UOWPathAssetNode> LeftNode;
+	TWeakObjectPtr<class UOWPathAssetNode> RightNode;
+	EOWPathAssetDirectionType Direction;
+	OperationType Operation;
 
+	FOWPathAssetConnectionToolLinkNodeChangeCommand(TWeakObjectPtr<class UOWPathAssetNode> InLeftNode, TWeakObjectPtr<class UOWPathAssetNode> InRightNode, EOWPathAssetDirectionType InDirection, OperationType InOperation) :
+		LeftNode(InLeftNode), RightNode(InRightNode), Direction(InDirection), Operation(InOperation)
+	{}
+
+	virtual void Apply(UObject* Object) override;
+	virtual void Revert(UObject* Object) override;
+	virtual FString ToString() const override { return TEXT("ConnectionTool:FOWPathAssetConnectionToolLinkNodeChangeCommand"); };
+};
+
+/**
+ * Node's link change direction transaction for UOWPathAssetConnectionTool
+ */
+class FOWPathAssetConnectionToolLinkChangeDirectionCommand : public FToolCommandChange
+{
+public:
+	TWeakObjectPtr<class UOWPathAssetNode> LeftNode;
+	TWeakObjectPtr<class UOWPathAssetNode> RightNode;
+	EOWPathAssetDirectionType NewDirection;
+	EOWPathAssetDirectionType OldDirection;
+
+	FOWPathAssetConnectionToolLinkChangeDirectionCommand(TWeakObjectPtr<class UOWPathAssetNode> InLeftNode, TWeakObjectPtr<class UOWPathAssetNode> InRightNode, EOWPathAssetDirectionType InNewDirection, EOWPathAssetDirectionType InOldDirection) :
+		LeftNode(InLeftNode), RightNode(InRightNode), NewDirection(InNewDirection), OldDirection(InOldDirection)
+	{}
+
+	virtual void Apply(UObject* Object) override;
+	virtual void Revert(UObject* Object) override;
+	virtual FString ToString() const override { return TEXT("ConnectionTool:FOWPathAssetConnectionToolLinkChangeDirectionCommand"); };
+};
+
+
+/**
+ * UOWPathAssetConnectionTool
+ */
 UCLASS()
 class UOWPathAssetConnectionTool : public UOWPathAssetBaseTool, public IClickBehaviorTarget
 {
 	GENERATED_BODY()
 
-    friend UOWPathAssetConnectionToolSelectionContext;
 public:
 	/* UOWPathAssetBaseTool */
     virtual void Setup() override;
+	virtual void Shutdown(EToolShutdownType ShutdownType) override;
 	virtual void Render(IToolsContextRenderAPI* RenderAPI) override;
-	virtual void OnPathAssetChanged(UOWPathAsset* InPathAsset) override;
 	/* UOWPathAssetBaseTool */
 
 	/* IClickBehaviorTarget */
-    virtual FInputRayHit IsHitByClick(const FInputDeviceRay& ClickPos) override;
+    virtual FInputRayHit IsHitByClick(const FInputDeviceRay& ClickPos) override { return FInputRayHit(0.f); }
     virtual void OnClicked(const FInputDeviceRay& ClickPos) override;
 	/* IClickBehaviorTarget */
 
-	void LinkSelectedNodes();
-	void UnlinkSelectedNodes();
+	void SetNode(UOWPathAssetNode* InNode);
+	void Link(EOWPathAssetDirectionType Direction = EOWPathAssetDirectionType::LAR);
+	void Unlink();
 
-	FOWPathAssetConnectionToolNodeSelected OnPathAssetNodeSelected;
+	void UndoNodeSet(const FOWPathAssetConnectionToolNodeSetChangeCommand* UndoCommand, bool IsUndo);
+    void UndoLinkDirection(const FOWPathAssetConnectionToolLinkChangeDirectionCommand* UndoCommand, bool IsUndo) const;
+    void UndoNodeLink(const FOWPathAssetConnectionToolLinkNodeChangeCommand* UndoCommand, bool IsUndo) const;
+
+	DECLARE_MULTICAST_DELEGATE_FourParams(FOWPathAssetConnectionToolNodeSelected, const TWeakObjectPtr<class UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<class UOWPathAssetNode>& RightNode, bool Linked, EOWPathAssetDirectionType DirectionType);
+	FOWPathAssetConnectionToolNodeSelected OnNodeChanged;
+
 private:
-	UPROPERTY(Transient)
-    TObjectPtr<UOWPathAssetConnectionToolSelectionContext> SelectionContext;
+	UPROPERTY()
+	TWeakObjectPtr<class UOWPathAssetNode> LeftNode;
+
+	UPROPERTY()
+    TWeakObjectPtr<class UOWPathAssetNode> RightNode;
+
+	bool Link_Internal(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, EOWPathAssetDirectionType Direction) const;
+	UOWPathAssetLink* Unlink_Internal(const TWeakObjectPtr<UOWPathAssetNode>& InLeftNode, const TWeakObjectPtr<UOWPathAssetNode>& InRightNode) const;
+    void OnNodeChanged_Internal() const;
 };
 
 

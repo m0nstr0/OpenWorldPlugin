@@ -46,25 +46,23 @@ void UOWPathAssetCreateNodeTool::Shutdown(EToolShutdownType ShutdownType)
 
 void UOWPathAssetCreateNodeTool::Render(IToolsContextRenderAPI* RenderAPI)
 {
-	if (!IsPathAssetSelected())	{
+	if (!GetAsset().IsValid()) {
 		return;
 	}
 
-    Super::Render(RenderAPI);
+    UOWPathAssetBaseTool::Render(RenderAPI);
 
-    const TObjectPtr<UOWPathAsset> PathAsset = GetPathAsset();
-    const int32 CapsuleSides = FMath::Clamp<int32>(PathAsset->Radius / 4.f, 16, 64);
+    const int32 CapsuleSides = FMath::Clamp<int32>(GetAsset()->Radius / 4.f, 16, 64);
 	FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
 
 	//PDI->SetHitProxy(new HOWPathAssetNodeHitProxy(PathAssetNode));
-	DrawWireCapsule(PDI, PlaceHolderPosition, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, FColor::Blue, PathAsset->Radius, PathAsset->Height / 2.f, CapsuleSides, SDPG_Foreground);
+	DrawWireCapsule(PDI, PlaceHolderPosition, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, FColor::Blue, GetAsset()->Radius, GetAsset()->Height / 2.f, CapsuleSides, SDPG_Foreground);
 	PDI->DrawPoint(PlaceHolderPosition, FColor::Blue, 30.f, SDPG_Foreground);
 	PDI->SetHitProxy(nullptr);
 }
 
 FHitResult UOWPathAssetCreateNodeTool::TraceForNodePlacement(const FInputDeviceRay& PressPos) const
 {
-    const TObjectPtr<UOWPathAsset> PathAsset = GetPathAsset();
     const FCollisionObjectQueryParams CollisionObjectQueryParams(FCollisionObjectQueryParams::AllObjects);
     const FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(DragDropTrace), true);
 
@@ -80,7 +78,7 @@ FHitResult UOWPathAssetCreateNodeTool::TraceForNodePlacement(const FInputDeviceR
     }
 
     FHitResult Result;
-    if (TArray<FHitResult> Hits; TargetWorld->SweepMultiByObjectType(Hits, RayOrigin, PointAt, FQuat::Identity, CollisionObjectQueryParams, FCollisionShape::MakeCapsule(PathAsset->Radius, PathAsset->Height / 2.f), CollisionQueryParams)) {
+    if (TArray<FHitResult> Hits; TargetWorld->SweepMultiByObjectType(Hits, RayOrigin, PointAt, FQuat::Identity, CollisionObjectQueryParams, FCollisionShape::MakeCapsule(GetAsset()->Radius, GetAsset()->Height / 2.f), CollisionQueryParams)) {
         float ClosestHitDistanceSqr = TNumericLimits<float>::Max();
         for (const FHitResult& Hit : Hits) {
             if (const float DistanceToHitSqr = (Hit.ImpactPoint - RayOrigin).SizeSquared(); DistanceToHitSqr < ClosestHitDistanceSqr) {
@@ -90,9 +88,9 @@ FHitResult UOWPathAssetCreateNodeTool::TraceForNodePlacement(const FInputDeviceR
         }
     } else {
         const float DistanceMultiplier = (ViewportType == LVT_Perspective) ? GetDefault<ULevelEditorViewportSettings>()->BackgroundDropDistance : 0.0f;
-        Result = FHitResult(RayOrigin, PressPos.WorldRay.PointAt(PathAsset->Radius + DistanceMultiplier));
+        Result = FHitResult(RayOrigin, PressPos.WorldRay.PointAt(GetAsset()->Radius + DistanceMultiplier));
         Result.bBlockingHit = true;
-        Result.Location = PressPos.WorldRay.PointAt(PathAsset->Radius + DistanceMultiplier);
+        Result.Location = PressPos.WorldRay.PointAt(GetAsset()->Radius + DistanceMultiplier);
         Result.Distance = PressPos.WorldRay.Dist(Result.Location);
     }
 
@@ -101,7 +99,7 @@ FHitResult UOWPathAssetCreateNodeTool::TraceForNodePlacement(const FInputDeviceR
 
 FInputRayHit UOWPathAssetCreateNodeTool::BeginHoverSequenceHitTest(const FInputDeviceRay& PressPos)
 {
-    if (!IsPathAssetSelected()) {
+    if (!GetAsset().IsValid()) {
         return  FInputRayHit();
     }
 
@@ -111,7 +109,7 @@ FInputRayHit UOWPathAssetCreateNodeTool::BeginHoverSequenceHitTest(const FInputD
 
 void UOWPathAssetCreateNodeTool::OnBeginHover(const FInputDeviceRay& DevicePos)
 {
-    if (!IsPathAssetSelected()) {
+    if (!GetAsset().IsValid()) {
         return;
     }
 
@@ -122,7 +120,7 @@ void UOWPathAssetCreateNodeTool::OnBeginHover(const FInputDeviceRay& DevicePos)
 
 bool UOWPathAssetCreateNodeTool::OnUpdateHover(const FInputDeviceRay& DevicePos)
 {
-    if (!IsPathAssetSelected()) {
+    if (!GetAsset().IsValid()) {
         return false;
     }
 
@@ -135,7 +133,7 @@ bool UOWPathAssetCreateNodeTool::OnUpdateHover(const FInputDeviceRay& DevicePos)
 
 FInputRayHit UOWPathAssetCreateNodeTool::IsHitByClick(const FInputDeviceRay& ClickPos)
 {
-    if (!IsPathAssetSelected()) {
+    if (!GetAsset().IsValid()) {
         return  FInputRayHit();
     }
 
@@ -145,7 +143,7 @@ FInputRayHit UOWPathAssetCreateNodeTool::IsHitByClick(const FInputDeviceRay& Cli
 
 void UOWPathAssetCreateNodeTool::OnClicked(const FInputDeviceRay& ClickPos)
 {
-    if (!IsPathAssetSelected()) {
+    if (!GetAsset().IsValid()) {
         return;
     }
 
@@ -156,16 +154,15 @@ void UOWPathAssetCreateNodeTool::OnClicked(const FInputDeviceRay& ClickPos)
 
 void UOWPathAssetCreateNodeTool::AddNodeAtLocation(const FVector& InNodeLocation) const
 {
-    if (!IsPathAssetSelected()) {
+    if (!GetAsset().IsValid()) {
         return;
     }
 
-    const TObjectPtr<UOWPathAsset> PathAsset = GetPathAsset();
-    if (UOWPathAssetNode* Node = NewObject<UOWPathAssetNode>(PathAsset); Node) {
+    if (UOWPathAssetNode* Node = NewObject<UOWPathAssetNode>(GetAsset().Get()); Node) {
         const FScopedTransaction Transaction(FText::FromString("OpenWorld PathAsset Add New Node"));
         Node->SetFlags(RF_Transactional);
         Node->Location = InNodeLocation;
-        PathAsset->Modify();
-        PathAsset->Nodes.Add(Node);
+        GetAsset()->Modify();
+        GetAsset()->Nodes.Add(Node);
     }
 }

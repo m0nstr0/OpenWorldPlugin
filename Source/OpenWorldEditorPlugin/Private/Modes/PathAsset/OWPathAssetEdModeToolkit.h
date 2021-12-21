@@ -3,34 +3,39 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OWPathAssetLink.h"
 #include "Toolkits/BaseToolkit.h"
+#include "Tools/OWPathAssetConnectionTool.h"
 #include "Widgets/SWidget.h"
-//#include "Modes/thAssetEdMode/OWPathAssetEdModeWidget.h"
 
 /**
  *
  */
-class FOWPathAssetEdModeToolkit : public FModeToolkit
+class FOWPathAssetEdModeToolkit final : public FModeToolkit
 {
 public:
-	FOWPathAssetEdModeToolkit();
-    void CreateViewportOverlayWidget();
     virtual void Init(const TSharedPtr<IToolkitHost>& InitToolkitHost, TWeakObjectPtr<UEdMode> InOwningMode) override;
-	virtual FName GetToolkitFName() const override;
-	virtual FText GetBaseToolkitName() const override;
+	virtual FName GetToolkitFName() const override { return FName("OpenWorldEdMode"); }
+	virtual FText GetBaseToolkitName() const override { return FText::FromString("OpenWorldEdMode Toolkit"); }
 	virtual void GetToolPaletteNames(TArray<FName>& PaletteNames) const override;
-	virtual FText GetToolPaletteDisplayName(FName Palette) const override;
-	virtual void CustomizeModeDetailsViewArgs(FDetailsViewArgs& ArgsInOut) override;
-	void OnToolStarted(UInteractiveToolManager* Manager, UInteractiveTool* Tool) override;
-	void OnToolEnded(UInteractiveToolManager* Manager, UInteractiveTool* Tool) override;
-	void UpdateModeProperties(const TArray<UObject*>& Objects);
-	void UpdateActiveToolProperties(UInteractiveTool* Tool);
-	void OnToolPaletteChanged(FName PaletteName) override;
-
-	void OnConnectionToolNodesSelected(const TObjectPtr<class UOWPathAssetNode> LeftNode, const TObjectPtr<class UOWPathAssetNode> RightNode);
+    virtual void OnToolStarted(UInteractiveToolManager* Manager, UInteractiveTool* Tool) override;
+    virtual void OnToolEnded(UInteractiveToolManager* Manager, UInteractiveTool* Tool) override;
+	
+	void OnConnectionToolNodesSelected(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, bool HaveLink, EOWPathAssetDirectionType
+                                       Direction);
     void ConnectionToolProcessSelectedNodes(const bool IsNeedToLink) const;
+private:
+	void CreateViewportOverlayWidgetForConnectionTool();
+	void UpdateModeProperties(const TArray<UObject*>& Objects) const;
+	void UpdateActiveToolProperties(UInteractiveTool* Tool) const;
 
 private:
-	TSharedPtr<SWidget> ViewportOverlayWidget;
-    bool IsTwoNodesSelectedToLink;
+	TSharedPtr<SWidget> ViewportOverlayWidgetForConnectionTool;
+    bool IsTwoNodesSelectedToLink = false;
+	bool IsTwoNodesHaveLink = false;
+
+    struct FLinkDirectionType { FString Text; EOWPathAssetDirectionType Direction; };
+	TArray<TSharedPtr<FLinkDirectionType>> LinkDirectionTypeItems;
+	TSharedPtr<STextBlock> LinkDirectionTypeTextWidget;
+	TSharedPtr< SComboBox< TSharedPtr<FLinkDirectionType> > > LinkDirectionTypeComboBox;
 };

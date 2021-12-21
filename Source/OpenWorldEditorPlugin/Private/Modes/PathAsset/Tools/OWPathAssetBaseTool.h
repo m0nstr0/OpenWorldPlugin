@@ -38,17 +38,18 @@ public:
 	virtual void Render(IToolsContextRenderAPI* RenderAPI) override;
 	/* UInteractiveTool */
 
-	virtual void OnPathAssetChanged(class UOWPathAsset* InPathAsset);
+	virtual void SetAsset(TWeakObjectPtr<class UOWPathAsset> InPathAsset) { TargetPathAsset = InPathAsset; };
+	TWeakObjectPtr<class UOWPathAsset> GetAsset() const { return TargetPathAsset; }
+
 	bool RemoveToolPropertySourceObject(UObject* PropertySet);
 	void CleanToolPropertySource(TObjectPtr<UObject> ObjectToAdd = nullptr);
+
 protected:
 	UWorld* TargetWorld = nullptr;
-	bool IsPathAssetSelected() const { return PathAssetBeingEdited != nullptr; }
-	TObjectPtr<class UOWPathAsset> GetPathAsset() const { return PathAssetBeingEdited; }
-	void DrawNode(const FColor DrawColor, TObjectPtr<class UOWPathAsset> PathAsset, TObjectPtr<class UOWPathAssetNode> PathAssetNode, IToolsContextRenderAPI* RenderAPI) const;
+	void RenderNode(const FColor DrawColor, UOWPathAssetNode* PathAssetNode, IToolsContextRenderAPI* RenderAPI) const;
+
 private:
-	UPROPERTY()
-	TObjectPtr<class UOWPathAsset> PathAssetBeingEdited;
+    TWeakObjectPtr<class UOWPathAsset> TargetPathAsset;
 };
 
 

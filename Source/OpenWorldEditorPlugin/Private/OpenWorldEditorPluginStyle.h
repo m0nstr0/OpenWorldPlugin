@@ -41,6 +41,17 @@ public:
 			Set("OpenWorldEdMode.PathAssetConnectionTool", new FSlateImageBrush(RootToContentDir(TEXT("Resources/CreateConnection_40x"), TEXT(".png")), FVector2D(20.f, 20.f)));
 			Set("OpenWorldEdMode.PathAssetConnectionTool.link", new IMAGE_BRUSH_SVG(TEXT("Resources/Linked"), FVector2D(16.f, 16.f)));
 			Set("OpenWorldEdMode.PathAssetConnectionTool.unlink", new IMAGE_BRUSH_SVG(TEXT("Resources/Unlinked"), FVector2D(16.f, 16.f)));
+			Set("OpenWorldEdMode.PathAssetConnectionTool.linkTypeLeft", new IMAGE_BRUSH(TEXT("Resources/LeftArrow_48x"), FVector2D(16.f, 16.f)));
+			Set("OpenWorldEdMode.PathAssetConnectionTool.linkTypeRight", new IMAGE_BRUSH(TEXT("Resources/RightArrow_48x"), FVector2D(16.f, 16.f)));
+			Set("OpenWorldEdMode.PathAssetConnectionTool.linkTypeBoth", new IMAGE_BRUSH(TEXT("Resources/BothArrow_48x"), FVector2D(16.f, 16.f)));
+
+			FComboButtonStyle LinkTypeComboButtonStyle(FAppStyle::Get().GetWidgetStyle<FComboButtonStyle>("SimpleComboButton"));
+			LinkTypeComboButtonStyle.SetButtonStyle(FAppStyle::Get().GetWidgetStyle<FButtonStyle>("Button"));
+
+			FComboBoxStyle LinkTypeComboBoxStyle(FAppStyle::Get().GetWidgetStyle<FComboBoxStyle>("SimpleComboBox"));
+			LinkTypeComboBoxStyle.SetComboButtonStyle(LinkTypeComboButtonStyle);
+
+			Set("OpenWorldEdMode.PathAssetConnectionTool.LinkTypeCombo", LinkTypeComboBoxStyle);
 		}
 
 		FSlateStyleRegistry::RegisterSlateStyle(*this);

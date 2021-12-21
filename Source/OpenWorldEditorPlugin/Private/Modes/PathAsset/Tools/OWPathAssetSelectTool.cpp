@@ -26,10 +26,10 @@ void FOWPathAssetSelectToolActionCommands::GetToolDefaultObjectList(TArray<UInte
 	ToolCDOs.Add(GetMutableDefault<UOWPathAssetSelectTool>());
 }
 
-void UOWPathAssetSelectTool::OnPathAssetChanged(UOWPathAsset* InPathAsset)
+void UOWPathAssetSelectTool::SetAsset(TWeakObjectPtr<UOWPathAsset> InPathAsset)
 {
-    Super::OnPathAssetChanged(InPathAsset);
-	SelectionContext->SelectAsset(InPathAsset);
+    UOWPathAssetBaseTool::SetAsset(InPathAsset);
+	SelectionContext->SelectAsset(InPathAsset.Get());
 }
 
 void UOWPathAssetSelectTool::Setup()
@@ -51,11 +51,11 @@ void UOWPathAssetSelectTool::Render(IToolsContextRenderAPI* RenderAPI)
 {
 	UOWPathAssetBaseTool::Render(RenderAPI);
 
-	if (!IsPathAssetSelected() || !SelectionContext->IsNodeSelected()) {
+	if (!GetAsset().IsValid() || !SelectionContext->IsNodeSelected()) {
 		return;
 	}
 
-	DrawNode(FColor(255, 128, 0), GetPathAsset(), SelectionContext->GetSelectedNode(), RenderAPI);
+	RenderNode(FColor(255, 128, 0), SelectionContext->GetSelectedNode(), RenderAPI);
 }
 
 

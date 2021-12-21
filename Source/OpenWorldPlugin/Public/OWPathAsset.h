@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OWPathAssetLink.h"
 #include "UObject/NoExportTypes.h"
 #include "OWPathAssetNode.h"
 #include "OWPathAsset.generated.h"
@@ -29,11 +30,17 @@ public:
 	TArray<UOWPathAssetNode*> Nodes;
 
 	UPROPERTY()
-    TArray<TObjectPtr<class UOWPathAssetLink>> Links;
+    TArray<class UOWPathAssetLink*> Links;
 
 	UFUNCTION(BlueprintCallable)
 	TArray<UOWPathAssetNode*> GetNodes() const
 	{
 		return Nodes;
-	};
+	}
+
+    UOWPathAssetLink* Link(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, EOWPathAssetDirectionType DirectionContext);
+    UOWPathAssetLink* Unlink(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode);
+    class UOWPathAssetLink* FindLink(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, EOWPathAssetDirectionType& OutDirectionContext);
+    class UOWPathAssetLink* FindLink(const UOWPathAssetNode* LeftNode, const UOWPathAssetNode* RightNode, EOWPathAssetDirectionType& OutDirectionContext);
+    class UOWPathAssetLink* FindLink(const UOWPathAssetNode* LeftNode, const UOWPathAssetNode* RightNode);
 };

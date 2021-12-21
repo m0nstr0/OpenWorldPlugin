@@ -96,7 +96,7 @@ class UOWPathAssetSelectTool : public UOWPathAssetBaseTool
 	GENERATED_BODY()
 
 public:
-	virtual void OnPathAssetChanged(UOWPathAsset* InPathAsset) override;
+	virtual void SetAsset(TWeakObjectPtr<UOWPathAsset> InPathAsset) override;
 	virtual void Setup() override;
 	virtual void Shutdown(EToolShutdownType ShutdownType) override;
 	virtual void Render(IToolsContextRenderAPI* RenderAPI) override;

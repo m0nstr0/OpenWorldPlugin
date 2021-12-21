@@ -18,6 +18,10 @@ UInteractiveTool* UOWPathAssetConnectionToolBuilder::BuildTool(const FToolBuilde
 	return NewTool;
 }
 
+
+/*
+ * ConnectionTool
+ */
 void UOWPathAssetConnectionTool::Setup()
 {
 	UInteractiveTool::Setup();
@@ -25,38 +29,28 @@ void UOWPathAssetConnectionTool::Setup()
 	USingleClickInputBehavior* MouseClickBehavior = NewObject<USingleClickInputBehavior>();
 	MouseClickBehavior->Initialize(this);
 	AddInputBehavior(MouseClickBehavior);
+}
 
-	SelectionContext = NewObject<UOWPathAssetConnectionToolSelectionContext>(this);
-	SelectionContext->SetFlags(RF_Transactional);
-	SelectionContext->Setup(this);
+void UOWPathAssetConnectionTool::Shutdown(EToolShutdownType ShutdownType)
+{
+    Super::Shutdown(ShutdownType);
 }
 
 void UOWPathAssetConnectionTool::Render(IToolsContextRenderAPI* RenderAPI)
 {
-	if (!IsPathAssetSelected())	{
+	if (!GetAsset().IsValid()) {
 		return;
 	}
 
 	Super::Render(RenderAPI);
 
-	if (SelectionContext->IsNodeSelected())	{
-		DrawNode(FColor::Green, SelectionContext->GetSelectedAsset(), SelectionContext->GetSelectedNode(), RenderAPI);
+	if (LeftNode.IsValid())	{
+		RenderNode(FColor::Green, LeftNode.Get(), RenderAPI);
 	}
 
-	if (SelectionContext->IsNodeSelected(false)) {
-		DrawNode(FColor::Blue, SelectionContext->GetSelectedAsset(), SelectionContext->GetSelectedNode(false), RenderAPI);
+	if (RightNode.IsValid()) {
+		RenderNode(FColor::Blue, RightNode.Get(), RenderAPI);
 	}
-}
-
-void UOWPathAssetConnectionTool::OnPathAssetChanged(UOWPathAsset* InPathAsset)
-{
-    Super::OnPathAssetChanged(InPathAsset);
-	SelectionContext->SelectAsset(InPathAsset);
-}
-
-FInputRayHit UOWPathAssetConnectionTool::IsHitByClick(const FInputDeviceRay& ClickPos)
-{
-    return FInputRayHit(0.f);
 }
 
 void UOWPathAssetConnectionTool::OnClicked(const FInputDeviceRay& ClickPos)
@@ -64,136 +58,218 @@ void UOWPathAssetConnectionTool::OnClicked(const FInputDeviceRay& ClickPos)
 	if (FViewport* Viewport = GEditor->GetActiveViewport()) {
 		HHitProxy* HitProxy = Viewport->GetHitProxy(Viewport->GetMouseX(), Viewport->GetMouseY());
 		if (HitProxy && HitProxy->IsA(HOWPathAssetNodeHitProxy::StaticGetType())) {
-			return SelectionContext->SelectNode(static_cast<HOWPathAssetNodeHitProxy*>(HitProxy)->RefObject);
+			return SetNode(static_cast<HOWPathAssetNodeHitProxy*>(HitProxy)->RefObject);
 		}
 	}
-	SelectionContext->SelectNode(nullptr);
+	SetNode(nullptr);
 }
 
-void UOWPathAssetConnectionTool::LinkSelectedNodes()
+void UOWPathAssetConnectionTool::OnNodeChanged_Internal() const
 {
-	SelectionContext->LinkNodes();
+    EOWPathAssetDirectionType DirectionContext = EOWPathAssetDirectionType::LAR;
+    UOWPathAssetLink* Link = GetAsset()->FindLink(LeftNode, RightNode, DirectionContext);
+    OnNodeChanged.Broadcast(LeftNode, RightNode, Link != nullptr, DirectionContext);
 }
 
-void UOWPathAssetConnectionTool::UnlinkSelectedNodes()
+void UOWPathAssetConnectionTool::SetNode(UOWPathAssetNode* InNode)
 {
-	SelectionContext->UnlinkNodes();
-}
-
-
-void UOWPathAssetConnectionToolSelectionContext::Setup(UOWPathAssetConnectionTool* InOwningTool)
-{
-	OwningTool = InOwningTool;
-}
-
-void UOWPathAssetConnectionToolSelectionContext::Shutdown()
-{}
-
-void UOWPathAssetConnectionToolSelectionContext::SelectAsset(UOWPathAsset* InPathAsset)
-{
-	PathAsset = InPathAsset;
-	//SelectNode(nullptr, true);
-}
-
-UOWPathAsset* UOWPathAssetConnectionToolSelectionContext::GetSelectedAsset() const
-{
-	return PathAsset;
-}
-
-bool UOWPathAssetConnectionToolSelectionContext::IsAssetSelected() const
-{
-	return PathAsset != nullptr;
-}
-
-void UOWPathAssetConnectionToolSelectionContext::SelectNode(UOWPathAssetNode* InPathAssetNode)
-{
-    if (!IsAssetSelected()) {
+    if (!GetAsset().IsValid()) {
 		return;
 	}
 
-	const FScopedTransaction Transaction(FText::FromString("Select OpenWorld PathAsset Node"));
+	TWeakObjectPtr<UOWPathAssetNode> OldLeftNode = LeftNode;
+	TWeakObjectPtr<UOWPathAssetNode> OldRightNode = RightNode;
 
-	Modify();
-
-	if (InPathAssetNode)
+	if (InNode)
     {
-        if (LeftPathAssetNode == InPathAssetNode || RightPathAssetNode == InPathAssetNode)
+        if (LeftNode == InNode || RightNode == InNode)
         {
-            LeftPathAssetNode = LeftPathAssetNode == InPathAssetNode ? nullptr : LeftPathAssetNode;
-            RightPathAssetNode = RightPathAssetNode == InPathAssetNode ? nullptr : RightPathAssetNode;
+            LeftNode = LeftNode == InNode ? nullptr : LeftNode;
+            RightNode = RightNode == InNode ? nullptr : RightNode;
         }
-        else if (LeftPathAssetNode)
+        else if (LeftNode.IsValid())
         {
-            RightPathAssetNode = InPathAssetNode;
+            RightNode = InNode;
         }
-        else if (RightPathAssetNode)
+        else if (RightNode.IsValid())
         {
-            LeftPathAssetNode = InPathAssetNode;
+            LeftNode = InNode;
         }
-        else if (!LeftPathAssetNode)
+        else if (!LeftNode.IsValid())
         {
-            LeftPathAssetNode = InPathAssetNode;
+            LeftNode = InNode;
         }
-        else if (!RightPathAssetNode)
+        else if (!RightNode.IsValid())
         {
-            RightPathAssetNode = InPathAssetNode;
+            RightNode = InNode;
         }
 
-		if (!LeftPathAssetNode && RightPathAssetNode)
+		if (!LeftNode.IsValid() && RightNode.IsValid())
 		{
-			LeftPathAssetNode = RightPathAssetNode;
-			RightPathAssetNode = nullptr;
+			LeftNode = RightNode;
+			RightNode = nullptr;
 		}
     }
     else
     {
-        LeftPathAssetNode = nullptr;
-        RightPathAssetNode = nullptr;
+        LeftNode = nullptr;
+        RightNode = nullptr;
     }
 
-	OwningTool->OnPathAssetNodeSelected.Broadcast(LeftPathAssetNode, RightPathAssetNode);
+	GetToolManager()->EmitObjectChange(
+		this, 
+		MakeUnique<FOWPathAssetConnectionToolNodeSetChangeCommand>(LeftNode, RightNode, OldLeftNode, OldRightNode), 
+		FText::FromString("Select Node")
+	);
+
+	OnNodeChanged_Internal();
 }
 
-UOWPathAssetNode* UOWPathAssetConnectionToolSelectionContext::GetSelectedNode(const bool IsLeftNode) const
+void UOWPathAssetConnectionTool::Link(EOWPathAssetDirectionType Direction)
 {
-	return IsLeftNode ? LeftPathAssetNode : RightPathAssetNode;
-}
-
-bool UOWPathAssetConnectionToolSelectionContext::IsNodeSelected(const bool IsLeftNode) const
-{
-	if (IsLeftNode) {
-		return LeftPathAssetNode != nullptr;
+	if (!GetAsset().IsValid() || !LeftNode.IsValid() || !RightNode.IsValid()) {
+		return;
 	}
 
-    return RightPathAssetNode != nullptr;
+	if (UOWPathAssetLink* Link = GetAsset()->FindLink(LeftNode.Get(), RightNode.Get()))
+	{
+		//TODO: Rewrite
+		if (Link->Direction != Direction) {
+			GetToolManager()->EmitObjectChange(
+				this,
+				MakeUnique<FOWPathAssetConnectionToolLinkChangeDirectionCommand>(LeftNode, RightNode, Link->Direction, Direction),
+				FText::FromString("Change Link Direction")
+			);
+			GetAsset()->MarkPackageDirty();
+			Link->Direction = Direction;
+			OnNodeChanged.Broadcast(LeftNode, RightNode, true, Direction);
+		}
+	} else if (Link_Internal(LeftNode, RightNode, Direction)) {
+		GetToolManager()->EmitObjectChange(
+			this,
+			MakeUnique<FOWPathAssetConnectionToolLinkNodeChangeCommand>(LeftNode, RightNode, Direction, FOWPathAssetConnectionToolLinkNodeChangeCommand::OperationType::Link),
+			FText::FromString("Link Node")
+		);
+	}
 }
 
-void UOWPathAssetConnectionToolSelectionContext::PostEditUndo()
+bool UOWPathAssetConnectionTool::Link_Internal(const TWeakObjectPtr<UOWPathAssetNode>& InLeftNode, const TWeakObjectPtr<UOWPathAssetNode>& InRightNode, EOWPathAssetDirectionType Direction) const
 {
-	UObject::PostEditUndo();
+	if (!GetAsset().IsValid() || !InLeftNode.IsValid() || !InRightNode.IsValid()) {
+		return false;
+	}
+
+	UOWPathAssetLink* Link = GetAsset()->Link(InLeftNode, InRightNode, Direction);
+	OnNodeChanged.Broadcast(InLeftNode, InRightNode, Link != nullptr, Direction);
+	return Link != nullptr;
 }
 
-void UOWPathAssetConnectionToolSelectionContext::LinkNodes()
+void UOWPathAssetConnectionTool::Unlink()
 {
-    if (!IsAssetSelected() || !IsNodeSelected() || !IsNodeSelected(false)) {
-        return;
-    }
-
-	TObjectPtr<UOWPathAsset> Asset = GetSelectedAsset();
-	TObjectPtr<UOWPathAssetNode> LeftNode = GetSelectedNode();
-	TObjectPtr<UOWPathAssetNode> RightNode = GetSelectedNode(false);
-
-	const FScopedTransaction Transaction(FText::FromString("Link OpenWorld PathAsset Nodes"));
-
-	Asset->Modify();
-	UOWPathAssetLink* Link = NewObject<UOWPathAssetLink>(Asset);
-	Link->SetFlags(RF_Transactional);
-	Link->LeftNode = LeftNode;
-	Link->RightNode = RightNode;
-	Asset->Links.Add(Link);
+	if (UOWPathAssetLink* Link = Unlink_Internal(LeftNode, RightNode)) {
+		GetToolManager()->EmitObjectChange(
+			this,
+			MakeUnique<FOWPathAssetConnectionToolLinkNodeChangeCommand>(LeftNode, RightNode, Link->Direction, FOWPathAssetConnectionToolLinkNodeChangeCommand::OperationType::Unlink),
+			FText::FromString("Unlink Node")
+		);
+	}
 }
 
-void UOWPathAssetConnectionToolSelectionContext::UnlinkNodes()
+UOWPathAssetLink* UOWPathAssetConnectionTool::Unlink_Internal(const TWeakObjectPtr<UOWPathAssetNode>& InLeftNode, const TWeakObjectPtr<UOWPathAssetNode>& InRightNode) const
 {
+	if (!GetAsset().IsValid() || !InLeftNode.IsValid() || !InRightNode.IsValid()) {
+		return nullptr;
+	}
 
+	if (UOWPathAssetLink* Link = GetAsset()->Unlink(InLeftNode, InRightNode)) {
+		OnNodeChanged.Broadcast(InLeftNode, InRightNode, false, Link->Direction);
+		return Link;
+	}
+
+	return nullptr;
+}
+
+void UOWPathAssetConnectionTool::UndoNodeSet(const FOWPathAssetConnectionToolNodeSetChangeCommand* UndoCommand, bool IsUndo)
+{
+	LeftNode = IsUndo ? UndoCommand->OldLeftNode : UndoCommand->NewLeftNode;
+	RightNode = IsUndo ? UndoCommand->OldRightNode : UndoCommand->NewRightNode;
+	OnNodeChanged_Internal();
+}
+
+void UOWPathAssetConnectionTool::UndoLinkDirection(const FOWPathAssetConnectionToolLinkChangeDirectionCommand* UndoCommand, bool IsUndo) const
+{
+	if (IsUndo) {
+		Link_Internal(UndoCommand->LeftNode, UndoCommand->RightNode, UndoCommand->OldDirection);
+	} else {
+		Link_Internal(UndoCommand->LeftNode, UndoCommand->RightNode, UndoCommand->NewDirection);
+	}
+}
+
+void UOWPathAssetConnectionTool::UndoNodeLink(const FOWPathAssetConnectionToolLinkNodeChangeCommand* UndoCommand, bool IsUndo) const
+{
+	if (UndoCommand->Operation == FOWPathAssetConnectionToolLinkNodeChangeCommand::OperationType::Link) {
+		if (IsUndo) {
+			Unlink_Internal(UndoCommand->LeftNode, UndoCommand->RightNode);
+		} else {
+			Link_Internal(UndoCommand->LeftNode, UndoCommand->RightNode, UndoCommand->Direction);
+		}
+	} else {
+		if (IsUndo) {
+			Link_Internal(UndoCommand->LeftNode, UndoCommand->RightNode, UndoCommand->Direction);
+		} else {
+			Unlink_Internal(UndoCommand->LeftNode, UndoCommand->RightNode);
+		}
+	}
+}
+
+
+/*
+ * ConnectionToolNodeSetChangeCommand
+ */
+void FOWPathAssetConnectionToolNodeSetChangeCommand::Apply(UObject* Object)
+{
+	if (UOWPathAssetConnectionTool* Tool = Cast<UOWPathAssetConnectionTool>(Object)) {
+		Tool->UndoNodeSet(this, false);
+	}
+}
+
+void FOWPathAssetConnectionToolNodeSetChangeCommand::Revert(UObject* Object)
+{
+	if (UOWPathAssetConnectionTool* Tool = Cast<UOWPathAssetConnectionTool>(Object)) {
+		Tool->UndoNodeSet(this, true);
+	}
+}
+
+/*
+ * ConnectionToolLinkNodeChangeCommand
+ */
+void FOWPathAssetConnectionToolLinkNodeChangeCommand::Apply(UObject* Object)
+{
+	if (const UOWPathAssetConnectionTool* Tool = Cast<UOWPathAssetConnectionTool>(Object)) {
+		Tool->UndoNodeLink(this, false);
+	}
+}
+
+void FOWPathAssetConnectionToolLinkNodeChangeCommand::Revert(UObject* Object)
+{
+	if (const UOWPathAssetConnectionTool* Tool = Cast<UOWPathAssetConnectionTool>(Object)) {
+		Tool->UndoNodeLink(this, true);
+	}
+}
+
+/*
+ * ConnectionToolLinkChangeDirectionCommand
+ */
+void FOWPathAssetConnectionToolLinkChangeDirectionCommand::Apply(UObject* Object)
+{
+	if (const UOWPathAssetConnectionTool* Tool = Cast<UOWPathAssetConnectionTool>(Object)) {
+		Tool->UndoLinkDirection(this, false);
+	}
+}
+
+void FOWPathAssetConnectionToolLinkChangeDirectionCommand::Revert(UObject* Object)
+{
+	if (const UOWPathAssetConnectionTool* Tool = Cast<UOWPathAssetConnectionTool>(Object)) {
+		Tool->UndoLinkDirection(this, true);
+	}
 }

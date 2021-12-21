@@ -36,20 +36,19 @@ void UOWPathAssetBaseTool::Shutdown(EToolShutdownType ShutdownType)
 
 void UOWPathAssetBaseTool::Render(IToolsContextRenderAPI* RenderAPI)
 {
-	if (!IsPathAssetSelected()) {
+	if (!GetAsset().IsValid()) {
 		return;
 	}
 
-    const TObjectPtr<UOWPathAsset> PathAsset = GetPathAsset();
  	constexpr FColor NormalColor(200, 200, 200);
  
- 	for (int32 i = 0; i < PathAsset->Nodes.Num(); i++) {
-		DrawNode(NormalColor, PathAsset, PathAsset->Nodes[i], RenderAPI);
+ 	for (int32 i = 0; i < GetAsset()->Nodes.Num(); i++) {
+		RenderNode(NormalColor, GetAsset()->Nodes[i], RenderAPI);
  	}
 
 	FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
-	for (int32 i = 0; i < PathAsset->Links.Num(); i++) {
-		PDI->DrawLine(FVector(PathAsset->Links[i]->LeftNode->Location), FVector(PathAsset->Links[i]->RightNode->Location), NormalColor, SDPG_Foreground);
+	for (int32 i = 0; i < GetAsset()->Links.Num(); i++) {
+		PDI->DrawLine(FVector(GetAsset()->Links[i]->LeftNode->Location), FVector(GetAsset()->Links[i]->RightNode->Location), NormalColor, SDPG_Foreground);
 	}
 }
 
@@ -74,18 +73,13 @@ void UOWPathAssetBaseTool::CleanToolPropertySource(TObjectPtr<UObject> ObjectToA
 	OnPropertySetsModified.Broadcast();
 }
 
-void UOWPathAssetBaseTool::DrawNode(const FColor DrawColor, const TObjectPtr<UOWPathAsset> PathAsset, const TObjectPtr<UOWPathAssetNode> PathAssetNode, IToolsContextRenderAPI* RenderAPI) const
+void UOWPathAssetBaseTool::RenderNode(const FColor DrawColor, UOWPathAssetNode* PathAssetNode, IToolsContextRenderAPI* RenderAPI) const
 {
-	const int32 CapsuleSides = FMath::Clamp<int32>(PathAsset->Radius / 4.f, 16, 64);
+	const int32 CapsuleSides = FMath::Clamp<int32>(GetAsset()->Radius / 4.f, 16, 64);
     FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
 
 	PDI->SetHitProxy(new HOWPathAssetNodeHitProxy(PathAssetNode));
-	DrawWireCapsule(PDI, PathAssetNode->Location, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, DrawColor, PathAsset->Radius, PathAsset->Height / 2.f, CapsuleSides, SDPG_Foreground);
+	DrawWireCapsule(PDI, PathAssetNode->Location, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, DrawColor, GetAsset()->Radius, GetAsset()->Height / 2.f, CapsuleSides, SDPG_Foreground);
 	PDI->DrawPoint(PathAssetNode->Location, DrawColor, 30.f, SDPG_Foreground);
 	PDI->SetHitProxy(nullptr);
-}
-
-void UOWPathAssetBaseTool::OnPathAssetChanged(UOWPathAsset* InPathAsset)
-{
-	PathAssetBeingEdited = InPathAsset;
 }

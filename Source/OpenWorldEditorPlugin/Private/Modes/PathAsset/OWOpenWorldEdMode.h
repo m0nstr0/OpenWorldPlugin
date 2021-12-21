@@ -24,7 +24,7 @@ public:
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOWEdModeObjectsChanged, const TArray<UObject*>&)
-DECLARE_MULTICAST_DELEGATE_OneParam(FOWEdModePathAssetSelected, UOWPathAsset*)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOWEdModePathAssetSelected, TWeakObjectPtr<UOWPathAsset>)
 
 UCLASS(Transient)
 class UOpenWorldEdMode : public UEdMode
@@ -69,5 +69,6 @@ protected:
 	void ReplaceModePropertyObject(UObject* OldObject, UObject* WithObject);
 
 	void ModeTick(float DeltaTime) override;
-	bool ShouldToolStartBeAllowed(const FString& ToolIdentifier) const override;
+    void DeactivateAllTools() const;
+    bool ShouldToolStartBeAllowed(const FString& ToolIdentifier) const override;
 };
