@@ -7,7 +7,7 @@
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleRegistry.h"
 #include "OpenWorldEditorPluginStyle.h"
-#include "Modes/PathAsset/OWPathAssetEdModeCommands.h"
+#include "Modes/PathAsset/OWPathAsset_EdModeCommands.h"
 #include "Modes/PathAsset/Tools/OWPathAssetSelectTool.h"
 
 #define LOCTEXT_NAMESPACE "FOpenWorldEditorPluginModule"
@@ -17,7 +17,7 @@ void FOpenWorldEditorPluginModule::StartupModule()
 	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FOpenWorldEditorPluginModule::OnPostEngineInit);
 
 	FOpenWorldEditorPluginStyle::Get();
-	FOWPathAssetEdModeCommands::Register();
+	FOWPathAsset_EdModeCommands::Register();
 
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	OpenWorldAssetCategoryBit = AssetTools.RegisterAdvancedAssetCategory(FName(TEXT("OpenWorld")), LOCTEXT("OpenWorldAssetCategory", "Open World"));
@@ -35,7 +35,7 @@ void FOpenWorldEditorPluginModule::ShutdownModule()
 	FCoreDelegates::OnPostEngineInit.RemoveAll(this);
 
 	FOWPathAssetSelectToolActionCommands::Unregister();
-	FOWPathAssetEdModeCommands::Unregister();
+	FOWPathAsset_EdModeCommands::Unregister();
 	UnRegisterAssetTypeAction();
 }
 

@@ -1,17 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OWPathAssetEdModeToolkit.h"
-#include "OWOpenWorldEdMode.h"
+#include "OWPathAsset_EdModeToolkit.h"
+#include "OWPathAsset_EdMode.h"
 #include "EditorModeManager.h"
 #include "EdModeInteractiveToolsContext.h"
 #include "OpenWorldEditorPluginStyle.h"
-#include "Tools/OWPathAssetConnectionTool.h"
+#include "Tools/OWPathAsset_LinkTool.h"
 
-void FOWPathAssetEdModeToolkit::Init(const TSharedPtr<IToolkitHost>& InitToolkitHost, TWeakObjectPtr<UEdMode> InOwningMode)
+void FOWPathAsset_EdModeToolkit::Init(const TSharedPtr<IToolkitHost>& InitToolkitHost, TWeakObjectPtr<UEdMode> InOwningMode)
 {
     FModeToolkit::Init(InitToolkitHost, InOwningMode);
-    Cast<UOpenWorldEdMode>(InOwningMode.Get())->OnEdModeObjectsChanged.AddSP(this, &FOWPathAssetEdModeToolkit::UpdateModeProperties);
+    Cast<UOWPathAsset_EdMode>(InOwningMode.Get())->OnEdModeObjectsChanged.AddSP(this, &FOWPathAsset_EdModeToolkit::UpdateModeProperties);
 
     LinkDirectionTypeItems.Add(MakeShareable(new FLinkDirectionType{ FString(TEXT("G ↔ B")),  EOWPathAssetDirectionType::LAR }));
     LinkDirectionTypeItems.Add(MakeShareable(new FLinkDirectionType{ FString(TEXT("G ← B")),  EOWPathAssetDirectionType::R2L }));
@@ -21,7 +21,7 @@ void FOWPathAssetEdModeToolkit::Init(const TSharedPtr<IToolkitHost>& InitToolkit
     LinkDirectionTypeComboBox->SetSelectedItem(LinkDirectionTypeItems[0]);
 }
 
-void FOWPathAssetEdModeToolkit::CreateViewportOverlayWidgetForConnectionTool()
+void FOWPathAsset_EdModeToolkit::CreateViewportOverlayWidgetForConnectionTool()
 {
     SAssignNew(ViewportOverlayWidgetForConnectionTool, SHorizontalBox)
     + SHorizontalBox::Slot()
@@ -145,31 +145,31 @@ void FOWPathAssetEdModeToolkit::CreateViewportOverlayWidgetForConnectionTool()
 }
 
 
-void FOWPathAssetEdModeToolkit::GetToolPaletteNames(TArray<FName>& PaletteNames) const
+void FOWPathAsset_EdModeToolkit::GetToolPaletteNames(TArray<FName>& PaletteNames) const
 {
-	PaletteNames.Add(UOpenWorldEdMode::PathAssetSelect_Tool);
+	PaletteNames.Add(UOWPathAsset_EdMode::PathAssetSelect_Tool);
 }
 
-void FOWPathAssetEdModeToolkit::OnToolStarted(UInteractiveToolManager* Manager, UInteractiveTool* Tool)
+void FOWPathAsset_EdModeToolkit::OnToolStarted(UInteractiveToolManager* Manager, UInteractiveTool* Tool)
 {
 	UpdateActiveToolProperties(Tool);
 
-	Tool->OnPropertySetsModified.AddSP(this, &FOWPathAssetEdModeToolkit::UpdateActiveToolProperties, Tool);
+	Tool->OnPropertySetsModified.AddSP(this, &FOWPathAsset_EdModeToolkit::UpdateActiveToolProperties, Tool);
 
-    if (UOWPathAssetConnectionTool* PathAssetConnectionTool = ExactCast<UOWPathAssetConnectionTool>(Tool)) {
+    if (UOWPathAsset_LinkTool* PathAssetConnectionTool = ExactCast<UOWPathAsset_LinkTool>(Tool)) {
 		GetToolkitHost()->AddViewportOverlayWidget(ViewportOverlayWidgetForConnectionTool.ToSharedRef());
-        PathAssetConnectionTool->OnNodeChanged.AddSP(this, &FOWPathAssetEdModeToolkit::OnConnectionToolNodesSelected);
+        PathAssetConnectionTool->OnNodeChanged.AddSP(this, &FOWPathAsset_EdModeToolkit::OnConnectionToolNodesSelected);
         IsTwoNodesSelectedToLink = false;
 	}
 
 	FModeToolkit::OnToolStarted(Manager, Tool);
 }
 
-void FOWPathAssetEdModeToolkit::OnToolEnded(UInteractiveToolManager* Manager, UInteractiveTool* Tool)
+void FOWPathAsset_EdModeToolkit::OnToolEnded(UInteractiveToolManager* Manager, UInteractiveTool* Tool)
 {
 	Tool->OnPropertySetsModified.RemoveAll(this);
 
-	if (UOWPathAssetConnectionTool* PathAssetConnectionTool = ExactCast<UOWPathAssetConnectionTool>(Tool)) {
+	if (UOWPathAsset_LinkTool* PathAssetConnectionTool = ExactCast<UOWPathAsset_LinkTool>(Tool)) {
         PathAssetConnectionTool->OnNodeChanged.RemoveAll(this);
         if (IsHosted()) {
             GetToolkitHost()->RemoveViewportOverlayWidget(ViewportOverlayWidgetForConnectionTool.ToSharedRef());
@@ -179,19 +179,19 @@ void FOWPathAssetEdModeToolkit::OnToolEnded(UInteractiveToolManager* Manager, UI
 	FModeToolkit::OnToolEnded(Manager, Tool);
 }
 
-void FOWPathAssetEdModeToolkit::UpdateModeProperties(const TArray<UObject*>& Objects) const
+void FOWPathAsset_EdModeToolkit::UpdateModeProperties(const TArray<UObject*>& Objects) const
 {
 	ModeDetailsView->SetObjects(Objects);
 }
 
-void FOWPathAssetEdModeToolkit::UpdateActiveToolProperties(UInteractiveTool* Tool) const
+void FOWPathAsset_EdModeToolkit::UpdateActiveToolProperties(UInteractiveTool* Tool) const
 {
 	if (Tool) {
 		DetailsView->SetObjects(Tool->GetToolProperties(false));
 	}
 }
 
-void FOWPathAssetEdModeToolkit::OnConnectionToolNodesSelected(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, bool HaveLink, EOWPathAssetDirectionType Direction)
+void FOWPathAsset_EdModeToolkit::OnConnectionToolNodesSelected(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, bool HaveLink, EOWPathAssetDirectionType Direction)
 {
     IsTwoNodesSelectedToLink = LeftNode.IsValid() && RightNode.IsValid();
     IsTwoNodesHaveLink = HaveLink;
@@ -201,11 +201,11 @@ void FOWPathAssetEdModeToolkit::OnConnectionToolNodesSelected(const TWeakObjectP
     }
 }
 
-void FOWPathAssetEdModeToolkit::ConnectionToolProcessSelectedNodes(const bool IsNeedToLink) const
+void FOWPathAsset_EdModeToolkit::ConnectionToolProcessSelectedNodes(const bool IsNeedToLink) const
 {
     const TSharedPtr<FLinkDirectionType> Link = LinkDirectionTypeComboBox->GetSelectedItem();
 
-    if (UOWPathAssetConnectionTool* PathAssetConnectionTool = ExactCast<UOWPathAssetConnectionTool>(GetScriptableEditorMode()->GetToolManager(EToolsContextScope::EdMode)->GetActiveTool(EToolSide::Left))) {
+    if (UOWPathAsset_LinkTool* PathAssetConnectionTool = ExactCast<UOWPathAsset_LinkTool>(GetScriptableEditorMode()->GetToolManager(EToolsContextScope::EdMode)->GetActiveTool(EToolSide::Left))) {
         if (IsNeedToLink)
         {
             PathAssetConnectionTool->Link(Link->Direction);

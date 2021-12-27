@@ -7,7 +7,7 @@
 #include "InteractiveToolBuilder.h"
 #include "BaseBehaviors/BehaviorTargetInterfaces.h"
 #include "Tools/InteractiveToolsCommands.h"
-#include "OWPathAssetBaseTool.h"
+#include "OWPathAsset_BaseTool.h"
 #include "OWPathAssetCreateNodeTool.generated.h"
 
 
@@ -29,7 +29,7 @@ public:
  *
  */
 UCLASS()
-class UOWPathAssetCreateNodeTool : public UOWPathAssetBaseTool, public IHoverBehaviorTarget, public IClickBehaviorTarget
+class UOWPathAssetCreateNodeTool : public UOWPathAsset_BaseTool, public IHoverBehaviorTarget, public IClickBehaviorTarget
 {
 	GENERATED_BODY()
 

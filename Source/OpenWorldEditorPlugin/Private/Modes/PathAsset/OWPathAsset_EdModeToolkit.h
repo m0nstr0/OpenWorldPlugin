@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "OWPathAssetLink.h"
 #include "Toolkits/BaseToolkit.h"
-#include "Tools/OWPathAssetConnectionTool.h"
+#include "Tools/OWPathAsset_LinkTool.h"
 #include "Widgets/SWidget.h"
 
 /**
  *
  */
-class FOWPathAssetEdModeToolkit final : public FModeToolkit
+class FOWPathAsset_EdModeToolkit final : public FModeToolkit
 {
 public:
     virtual void Init(const TSharedPtr<IToolkitHost>& InitToolkitHost, TWeakObjectPtr<UEdMode> InOwningMode) override;

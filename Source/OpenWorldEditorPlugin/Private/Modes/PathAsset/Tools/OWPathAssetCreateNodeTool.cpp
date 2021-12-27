@@ -50,7 +50,7 @@ void UOWPathAssetCreateNodeTool::Render(IToolsContextRenderAPI* RenderAPI)
 		return;
 	}
 
-    UOWPathAssetBaseTool::Render(RenderAPI);
+    UOWPathAsset_BaseTool::Render(RenderAPI);
 
     const int32 CapsuleSides = FMath::Clamp<int32>(GetAsset()->Radius / 4.f, 16, 64);
 	FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();

@@ -28,7 +28,7 @@ void FOWPathAssetSelectToolActionCommands::GetToolDefaultObjectList(TArray<UInte
 
 void UOWPathAssetSelectTool::SetAsset(TWeakObjectPtr<UOWPathAsset> InPathAsset)
 {
-    UOWPathAssetBaseTool::SetAsset(InPathAsset);
+    UOWPathAsset_BaseTool::SetAsset(InPathAsset);
 	SelectionContext->SelectAsset(InPathAsset.Get());
 }
 
@@ -49,7 +49,7 @@ void UOWPathAssetSelectTool::Shutdown(EToolShutdownType ShutdownType)
 
 void UOWPathAssetSelectTool::Render(IToolsContextRenderAPI* RenderAPI)
 {
-	UOWPathAssetBaseTool::Render(RenderAPI);
+	UOWPathAsset_BaseTool::Render(RenderAPI);
 
 	if (!GetAsset().IsValid() || !SelectionContext->IsNodeSelected()) {
 		return;

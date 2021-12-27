@@ -7,7 +7,7 @@
 #include "InteractiveToolBuilder.h"
 #include "BaseBehaviors/BehaviorTargetInterfaces.h"
 #include "Tools/InteractiveToolsCommands.h"
-#include "OWPathAssetBaseTool.h"
+#include "OWPathAsset_BaseTool.h"
 #include "BaseGizmos/TransformProxy.h"
 #include "OWPathAssetSelectTool.generated.h"
 
@@ -91,7 +91,7 @@ public:
 };
 
 UCLASS()
-class UOWPathAssetSelectTool : public UOWPathAssetBaseTool
+class UOWPathAssetSelectTool : public UOWPathAsset_BaseTool
 {
 	GENERATED_BODY()
 

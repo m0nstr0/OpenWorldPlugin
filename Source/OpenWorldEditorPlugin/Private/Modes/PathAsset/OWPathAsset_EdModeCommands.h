@@ -4,17 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Framework/Commands/Commands.h"
-#include "EditorStyleSet.h"
 #include "Framework/Commands/UICommandInfo.h"
 
 /**
- * 
+ * UOWPathAsset_EdMode Tools
  */
-class FOWPathAssetEdModeCommands : public TCommands<FOWPathAssetEdModeCommands>
+class FOWPathAsset_EdModeCommands : public TCommands<FOWPathAsset_EdModeCommands>
 {
 public:
-	FOWPathAssetEdModeCommands()
-		: TCommands<FOWPathAssetEdModeCommands>(
+	FOWPathAsset_EdModeCommands()
+		: TCommands<FOWPathAsset_EdModeCommands>(
 			TEXT("OpenWorldEdMode"),
 			FText::FromString(TEXT("Open World Path Asset Editor")),
 			NAME_None,
@@ -24,13 +23,12 @@ public:
 
 	virtual void RegisterCommands() override;
 
-	static TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> GetCommands();
+	static TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> GetCommands() { return Get().Commands; }
 
 public:
-	TSharedPtr<FUICommandInfo> PathAssetSelectTool;
-	TSharedPtr<FUICommandInfo> PathAssetCreateNodeTool;
-	TSharedPtr<FUICommandInfo> PathAssetConnectionTool;
+	TSharedPtr<FUICommandInfo> PathAsset_SelectTool;
+	TSharedPtr<FUICommandInfo> PathAsset_CreateTool;
+	TSharedPtr<FUICommandInfo> PathAsset_LinkTool;
 protected:
 	TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> Commands;
 };
-

@@ -5,16 +5,15 @@
 #include "CoreMinimal.h"
 #include "OWPathAsset.h"
 #include "Tools/UEdMode.h"
-#include "Tools/LegacyEdModeInterfaces.h"
 #include "InteractiveTool.h"
-#include "OWOpenWorldEdMode.generated.h"
+#include "OWPathAsset_EdMode.generated.h"
 
 /**
  * 
  */
 
 UCLASS(Transient)
-class UOWPathAssetModeProperties : public UInteractiveToolPropertySet
+class UOWPathAsset_EdModeProperties : public UInteractiveToolPropertySet
 {
 	GENERATED_BODY()
 
@@ -27,13 +26,13 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOWEdModeObjectsChanged, const TArray<UObjec
 DECLARE_MULTICAST_DELEGATE_OneParam(FOWEdModePathAssetSelected, TWeakObjectPtr<UOWPathAsset>)
 
 UCLASS(Transient)
-class UOpenWorldEdMode : public UEdMode
+class UOWPathAsset_EdMode : public UEdMode
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(Transient)
-	TObjectPtr<UOWPathAssetModeProperties> ModeProperties;
+	TObjectPtr<UOWPathAsset_EdModeProperties> ModeProperties;
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UObject>> ModePropertyObjects;
@@ -50,8 +49,8 @@ public:
     static const FName PathAssetConnection_Tool;
 
 public:
-	UOpenWorldEdMode();
-	virtual ~UOpenWorldEdMode();
+	UOWPathAsset_EdMode();
+	virtual ~UOWPathAsset_EdMode();
 	virtual void Enter() override;
 	virtual void Exit() override;
 	void CreateToolkit() override;

@@ -19,6 +19,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FVector Location;
 
-	UPROPERTY()
-	TArray<TObjectPtr<class UOWPathAssetLink>> Connections;
+	TArray<TWeakObjectPtr<class UOWPathAssetLink>> LinksFrom;
 };

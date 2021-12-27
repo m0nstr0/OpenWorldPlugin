@@ -5,15 +5,14 @@
 #include "CoreMinimal.h"
 #include "InteractiveTool.h"
 #include "InteractiveToolBuilder.h"
-#include "OWPathAssetNode.h"
-#include "OWPathAssetBaseTool.generated.h"
+#include "OWPathAsset_BaseTool.generated.h"
 
 
 /**
- * Builder for UOWPathAssetInteractiveTool
+ * Builder for UOWPathAsset_BaseTool
  */
 UCLASS()
-class  UOWPathAssetBaseToolBuilder : public UInteractiveToolBuilder
+class  UOWPathAsset_BaseToolBuilder : public UInteractiveToolBuilder
 {
 	GENERATED_BODY()
 
@@ -23,18 +22,16 @@ public:
 };
 
 /**
- *
+ * Base tool for UOWPathAsset_EdMode's tools
  */
 UCLASS()
-class UOWPathAssetBaseTool : public UInteractiveTool
+class UOWPathAsset_BaseTool : public UInteractiveTool
 {
 	GENERATED_BODY()
 
 public:
 	/* UInteractiveTool */
 	void SetWorld(UWorld* World);
-	virtual void Setup() override;
-	virtual void Shutdown(EToolShutdownType ShutdownType) override;
 	virtual void Render(IToolsContextRenderAPI* RenderAPI) override;
 	/* UInteractiveTool */
 
@@ -46,7 +43,8 @@ public:
 
 protected:
 	UWorld* TargetWorld = nullptr;
-	void RenderNode(const FColor DrawColor, UOWPathAssetNode* PathAssetNode, IToolsContextRenderAPI* RenderAPI) const;
+	void RenderNode(const FColor DrawColor, class UOWPathAssetNode* PathAssetNode, IToolsContextRenderAPI* RenderAPI) const;
+    void RenderNode(const FColor DrawColor, const FVector& Location, IToolsContextRenderAPI* RenderAPI) const;
 
 private:
     TWeakObjectPtr<class UOWPathAsset> TargetPathAsset;
