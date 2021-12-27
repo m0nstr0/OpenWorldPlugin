@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OWPathAssetSelectTool.h"
+#include "OWPathAsset_SelectTool.h"
 #include "InteractiveToolManager.h"
 #include "ToolBuilderUtil.h"
 #include "OWPathAssetHitProxies.h"
@@ -14,25 +14,34 @@
 #include "BaseGizmos/TransformProxy.h"
 
 
-UInteractiveTool* UOWPathAssetSelectToolBuilder::BuildTool(const FToolBuilderState& SceneState) const
+/*
+ * Tool Builder
+ */
+UInteractiveTool* UOWPathAsset_SelectToolBuilder::BuildTool(const FToolBuilderState& SceneState) const
 {
-	UOWPathAssetSelectTool* NewTool = NewObject<UOWPathAssetSelectTool>(SceneState.ToolManager);
+	UOWPathAsset_SelectTool* NewTool = NewObject<UOWPathAsset_SelectTool>(SceneState.ToolManager);
 	NewTool->SetWorld(SceneState.World);
 	return NewTool;
 }
 
-void FOWPathAssetSelectToolActionCommands::GetToolDefaultObjectList(TArray<UInteractiveTool*>& ToolCDOs)
+/*
+ * FOWPathAsset_SelectToolActionCommands
+ */
+void FOWPathAsset_SelectToolActionCommands::GetToolDefaultObjectList(TArray<UInteractiveTool*>& ToolCDOs)
 {
-	ToolCDOs.Add(GetMutableDefault<UOWPathAssetSelectTool>());
+	ToolCDOs.Add(GetMutableDefault<UOWPathAsset_SelectTool>());
 }
 
-void UOWPathAssetSelectTool::SetAsset(TWeakObjectPtr<UOWPathAsset> InPathAsset)
+/*
+ * UOWPathAsset_SelectTool
+ */
+void UOWPathAsset_SelectTool::SetAsset(TWeakObjectPtr<UOWPathAsset> InPathAsset)
 {
     UOWPathAsset_BaseTool::SetAsset(InPathAsset);
 	SelectionContext->SelectAsset(InPathAsset.Get());
 }
 
-void UOWPathAssetSelectTool::Setup()
+void UOWPathAsset_SelectTool::Setup()
 {
 	UInteractiveTool::Setup();
 
@@ -41,13 +50,13 @@ void UOWPathAssetSelectTool::Setup()
 	SelectionContext->Setup(this);
 }
 
-void UOWPathAssetSelectTool::Shutdown(EToolShutdownType ShutdownType)
+void UOWPathAsset_SelectTool::Shutdown(EToolShutdownType ShutdownType)
 {
 	UInteractiveTool::Shutdown(ShutdownType);
     SelectionContext->Shutdown();
 }
 
-void UOWPathAssetSelectTool::Render(IToolsContextRenderAPI* RenderAPI)
+void UOWPathAsset_SelectTool::Render(IToolsContextRenderAPI* RenderAPI)
 {
 	UOWPathAsset_BaseTool::Render(RenderAPI);
 
@@ -59,15 +68,8 @@ void UOWPathAssetSelectTool::Render(IToolsContextRenderAPI* RenderAPI)
 }
 
 
-void UOWPathAssetSelectTool::RegisterActions(FInteractiveToolActionSet& ActionSet)
+void UOWPathAsset_SelectTool::RegisterActions(FInteractiveToolActionSet& ActionSet)
 {
-	ActionSet.RegisterAction(this, static_cast<int32>(EStandardToolActions::BaseClientDefinedActionID) + 1,
-		TEXT("Select"),
-		FText::FromString("Select"),
-		FText::FromString("Select Path Node"),
-		EModifierKey::None, EKeys::LeftMouseButton,
-		[this]() { DoSelectAction(); });
-
 	ActionSet.RegisterAction(this, static_cast<int32>(EStandardToolActions::BaseClientDefinedActionID) + 2,
 		TEXT("Focus"),
 		FText::FromString("Focus"),
@@ -90,7 +92,7 @@ void UOWPathAssetSelectTool::RegisterActions(FInteractiveToolActionSet& ActionSe
 		[this]() { SelectionContext->DeleteSelectedNode(); });
 }
 
-void UOWPathAssetSelectTool::DoSelectAction()
+void UOWPathAsset_SelectTool::DoSelectAction()
 {
 	FViewport* Viewport = GEditor->GetActiveViewport();
 	if (!Viewport) {
@@ -98,18 +100,18 @@ void UOWPathAssetSelectTool::DoSelectAction()
 	}
 	 
 	HHitProxy* HitProxy = Viewport->GetHitProxy(Viewport->GetMouseX(), Viewport->GetMouseY());
-	if (HitProxy && HitProxy->IsA(HOWPathAssetNodeHitProxy::StaticGetType())) {
-        const HOWPathAssetNodeHitProxy* PathAssetEdModeHitProxy = static_cast<HOWPathAssetNodeHitProxy*>(HitProxy);
+	if (HitProxy && HitProxy->IsA(HOWPathAsset_NodeHitProxy::StaticGetType())) {
+        const HOWPathAsset_NodeHitProxy* PathAssetEdModeHitProxy = static_cast<HOWPathAsset_NodeHitProxy*>(HitProxy);
 		SelectionContext->SelectNode(Cast<UOWPathAssetNode>(PathAssetEdModeHitProxy->RefObject));
 	}
 }
 
-void UOWPathAssetSelectTool::DoSnapAction() const
+void UOWPathAsset_SelectTool::DoSnapAction() const
 {
 
 }
 
-void UOWPathAssetSelectToolSelectionContext::Setup(UOWPathAssetSelectTool* InOwningTool)
+void UOWPathAssetSelectToolSelectionContext::Setup(UOWPathAsset_SelectTool* InOwningTool)
 {
 	OwningTool = InOwningTool;
 

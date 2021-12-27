@@ -50,7 +50,7 @@ void FOWPathAsset_EdModeToolkit::CreateViewportOverlayWidgetForConnectionTool()
             [
                 SAssignNew(LinkDirectionTypeComboBox, SComboBox< TSharedPtr<FLinkDirectionType> >)
                 .Visibility_Lambda([this]() { return IsTwoNodesSelectedToLink ? EVisibility::Visible : EVisibility::Collapsed; })
-                .ComboBoxStyle(FOpenWorldEditorPluginStyle::Get(), "OpenWorldEdMode.PathAssetConnectionTool.LinkTypeCombo")
+                .ComboBoxStyle(FOpenWorldEditorPluginStyle::Get(), "PathAsset_EdMode.LinkTool.LinkTypeCombo")
                 .OptionsSource(&LinkDirectionTypeItems)
                 .HasDownArrow(false)
                 .ToolTipText(FText::FromString("Direction type"))
@@ -93,7 +93,7 @@ void FOWPathAsset_EdModeToolkit::CreateViewportOverlayWidgetForConnectionTool()
                     [
                         SNew(SImage)
                         .ColorAndOpacity(FSlateColor::UseForeground())
-                        .Image(FOpenWorldEditorPluginStyle::Get().GetBrush("OpenWorldEdMode.PathAssetConnectionTool.link"))
+                        .Image(FOpenWorldEditorPluginStyle::Get().GetBrush("PathAsset_EdMode.LinkTool.Link"))
                     ]
                     + SHorizontalBox::Slot()
                     .VAlign(VAlign_Center)
@@ -126,7 +126,7 @@ void FOWPathAsset_EdModeToolkit::CreateViewportOverlayWidgetForConnectionTool()
                     [
                         SNew(SImage)
                         .ColorAndOpacity(FSlateColor::UseForeground())
-                        .Image(FOpenWorldEditorPluginStyle::Get().GetBrush("OpenWorldEdMode.PathAssetConnectionTool.unlink"))
+                        .Image(FOpenWorldEditorPluginStyle::Get().GetBrush("PathAsset_EdMode.LinkTool.Unlink"))
                     ]
                     + SHorizontalBox::Slot()
                     .VAlign(VAlign_Center)

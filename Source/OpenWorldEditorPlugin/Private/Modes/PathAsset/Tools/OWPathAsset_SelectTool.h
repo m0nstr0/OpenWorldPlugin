@@ -9,14 +9,14 @@
 #include "Tools/InteractiveToolsCommands.h"
 #include "OWPathAsset_BaseTool.h"
 #include "BaseGizmos/TransformProxy.h"
-#include "OWPathAssetSelectTool.generated.h"
+#include "OWPathAsset_SelectTool.generated.h"
 
 
 /**
  * Builder for UOWPathAssetInteractiveTool
  */
 UCLASS()
-class  UOWPathAssetSelectToolBuilder : public UInteractiveToolBuilder
+class  UOWPathAsset_SelectToolBuilder : public UInteractiveToolBuilder
 {
 	GENERATED_BODY()
 
@@ -28,11 +28,11 @@ public:
 /**
  * TInteractiveToolCommands implementation for this module that provides standard Editor hotkey support
  */
-class FOWPathAssetSelectToolActionCommands : public TInteractiveToolCommands<FOWPathAssetSelectToolActionCommands>
+class FOWPathAsset_SelectToolActionCommands : public TInteractiveToolCommands<FOWPathAsset_SelectToolActionCommands>
 {
 public:
-	FOWPathAssetSelectToolActionCommands() :
-		TInteractiveToolCommands<FOWPathAssetSelectToolActionCommands>(
+	FOWPathAsset_SelectToolActionCommands() :
+		TInteractiveToolCommands<FOWPathAsset_SelectToolActionCommands>(
 			TEXT("OpenWorldPathAssetSelectToolActions"),
 			FText::FromString(TEXT("Open World Path Asset Editor")),
 			NAME_None,
@@ -50,7 +50,7 @@ class UOWPathAssetSelectToolSelectionContext : public UObject
 
 public:
 	UPROPERTY()
-	TObjectPtr<class UOWPathAssetSelectTool> OwningTool;
+	TObjectPtr<class UOWPathAsset_SelectTool> OwningTool;
 
 	UPROPERTY()
     TObjectPtr<class UOWPathAsset> PathAsset;
@@ -61,7 +61,7 @@ public:
 	UPROPERTY()
     TObjectPtr<class UCombinedTransformGizmo> TransformGizmo;
 	
-	void Setup(class UOWPathAssetSelectTool* InOwningTool);
+	void Setup(class UOWPathAsset_SelectTool* InOwningTool);
     void Shutdown();
 
     void SelectAsset(class UOWPathAsset* InPathAsset);
@@ -91,7 +91,7 @@ public:
 };
 
 UCLASS()
-class UOWPathAssetSelectTool : public UOWPathAsset_BaseTool
+class UOWPathAsset_SelectTool : public UOWPathAsset_BaseTool
 {
 	GENERATED_BODY()
 

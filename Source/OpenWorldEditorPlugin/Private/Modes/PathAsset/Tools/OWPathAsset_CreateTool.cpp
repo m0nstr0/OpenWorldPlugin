@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OWPathAssetCreateNodeTool.h"
+#include "OWPathAsset_CreateTool.h"
 #include "InteractiveToolManager.h"
 #include "ToolBuilderUtil.h"
 #include "OWPathAssetHitProxies.h"
@@ -17,14 +17,17 @@
 /*
  * ToolBuilder
  */
-UInteractiveTool* UOWPathAssetCreateNodeToolBuilder::BuildTool(const FToolBuilderState& SceneState) const
+UInteractiveTool* UOWPathAsset_CreateToolBuilder::BuildTool(const FToolBuilderState& SceneState) const
 {
-	UOWPathAssetCreateNodeTool* NewTool = NewObject<UOWPathAssetCreateNodeTool>(SceneState.ToolManager);
+	UOWPathAsset_CreateTool* NewTool = NewObject<UOWPathAsset_CreateTool>(SceneState.ToolManager);
 	NewTool->SetWorld(SceneState.World);
 	return NewTool;
 }
 
-void UOWPathAssetCreateNodeTool::Setup()
+/*
+ * UOWPathAsset_CreateTool
+ */
+void UOWPathAsset_CreateTool::Setup()
 {
 	UInteractiveTool::Setup();
 
@@ -38,13 +41,7 @@ void UOWPathAssetCreateNodeTool::Setup()
     
 }
 
-
-void UOWPathAssetCreateNodeTool::Shutdown(EToolShutdownType ShutdownType)
-{
-	UInteractiveTool::Shutdown(ShutdownType);
-}
-
-void UOWPathAssetCreateNodeTool::Render(IToolsContextRenderAPI* RenderAPI)
+void UOWPathAsset_CreateTool::Render(IToolsContextRenderAPI* RenderAPI)
 {
 	if (!GetAsset().IsValid()) {
 		return;
@@ -55,13 +52,10 @@ void UOWPathAssetCreateNodeTool::Render(IToolsContextRenderAPI* RenderAPI)
     const int32 CapsuleSides = FMath::Clamp<int32>(GetAsset()->Radius / 4.f, 16, 64);
 	FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
 
-	//PDI->SetHitProxy(new HOWPathAssetNodeHitProxy(PathAssetNode));
-	DrawWireCapsule(PDI, PlaceHolderPosition, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, FColor::Blue, GetAsset()->Radius, GetAsset()->Height / 2.f, CapsuleSides, SDPG_Foreground);
-	PDI->DrawPoint(PlaceHolderPosition, FColor::Blue, 30.f, SDPG_Foreground);
-	PDI->SetHitProxy(nullptr);
+    RenderNode(FirstColor, PlaceHolderLocation, RenderAPI);
 }
 
-FHitResult UOWPathAssetCreateNodeTool::TraceForNodePlacement(const FInputDeviceRay& PressPos) const
+FHitResult UOWPathAsset_CreateTool::TraceForNodePlacement(const FInputDeviceRay& PressPos) const
 {
     const FCollisionObjectQueryParams CollisionObjectQueryParams(FCollisionObjectQueryParams::AllObjects);
     const FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(DragDropTrace), true);
@@ -97,72 +91,26 @@ FHitResult UOWPathAssetCreateNodeTool::TraceForNodePlacement(const FInputDeviceR
     return Result;
 }
 
-FInputRayHit UOWPathAssetCreateNodeTool::BeginHoverSequenceHitTest(const FInputDeviceRay& PressPos)
+bool UOWPathAsset_CreateTool::OnUpdateHover(const FInputDeviceRay& DevicePos)
 {
-    if (!GetAsset().IsValid()) {
-        return  FInputRayHit();
+    if (const FHitResult Result = TraceForNodePlacement(DevicePos); GetAsset().IsValid() && Result.IsValidBlockingHit()) {
+        PlaceHolderLocation = Result.Location;
+        return true;
     }
 
-    const FHitResult Result = TraceForNodePlacement(PressPos);
-    return Result.IsValidBlockingHit() ? FInputRayHit(Result.Distance) : FInputRayHit();
+	return false;
 }
 
-void UOWPathAssetCreateNodeTool::OnBeginHover(const FInputDeviceRay& DevicePos)
+void UOWPathAsset_CreateTool::OnClicked(const FInputDeviceRay& ClickPos)
 {
-    if (!GetAsset().IsValid()) {
-        return;
-    }
-
-    if (const FHitResult Result = TraceForNodePlacement(DevicePos); Result.IsValidBlockingHit()) {
-        PlaceHolderPosition = Result.Location;
-    }
-}
-
-bool UOWPathAssetCreateNodeTool::OnUpdateHover(const FInputDeviceRay& DevicePos)
-{
-    if (!GetAsset().IsValid()) {
-        return false;
-    }
-
-    if (const FHitResult Result = TraceForNodePlacement(DevicePos); Result.IsValidBlockingHit()) {
-        PlaceHolderPosition = Result.Location;
-    }
-
-	return true;
-}
-
-FInputRayHit UOWPathAssetCreateNodeTool::IsHitByClick(const FInputDeviceRay& ClickPos)
-{
-    if (!GetAsset().IsValid()) {
-        return  FInputRayHit();
-    }
-
-    const FHitResult Result = TraceForNodePlacement(ClickPos);
-    return Result.IsValidBlockingHit() ? FInputRayHit(Result.Distance) : FInputRayHit();
-}
-
-void UOWPathAssetCreateNodeTool::OnClicked(const FInputDeviceRay& ClickPos)
-{
-    if (!GetAsset().IsValid()) {
-        return;
-    }
-
-    if (const FHitResult Result = TraceForNodePlacement(ClickPos); Result.IsValidBlockingHit()) {
+    if (const FHitResult Result = TraceForNodePlacement(ClickPos); GetAsset().IsValid() && Result.IsValidBlockingHit()) {
         AddNodeAtLocation(Result.Location);
     }
 }
 
-void UOWPathAssetCreateNodeTool::AddNodeAtLocation(const FVector& InNodeLocation) const
+void UOWPathAsset_CreateTool::AddNodeAtLocation(const FVector& InNodeLocation) const
 {
-    if (!GetAsset().IsValid()) {
-        return;
-    }
-
-    if (UOWPathAssetNode* Node = NewObject<UOWPathAssetNode>(GetAsset().Get()); Node) {
-        const FScopedTransaction Transaction(FText::FromString("OpenWorld PathAsset Add New Node"));
-        Node->SetFlags(RF_Transactional);
-        Node->Location = InNodeLocation;
-        GetAsset()->Modify();
-        GetAsset()->Nodes.Add(Node);
+    if (GetAsset().IsValid()) {
+        GetAsset()->CreateNode(InNodeLocation);
     }
 }

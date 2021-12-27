@@ -17,6 +17,15 @@ void UOWPathAsset::PreSave(FObjectPreSaveContext SaveContext)
     UObject::PreSave(SaveContext);
 }
 
+void UOWPathAsset::CreateNode(const FVector& InLocation)
+{
+	if (UOWPathAssetNode* Node = NewObject<UOWPathAssetNode>(this)) {
+		MarkPackageDirty();
+		Node->Location = InLocation;
+		Nodes.Add(Node);
+	}
+}
+
 UOWPathAssetLink* UOWPathAsset::Link(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, const EOWPathAssetDirectionType DirectionContext)
 {
 	EOWPathAssetDirectionType Direction = DirectionContext;

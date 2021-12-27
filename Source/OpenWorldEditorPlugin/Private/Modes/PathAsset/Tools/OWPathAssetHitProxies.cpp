@@ -4,14 +4,14 @@
 #include "OWPathAssetNode.h"
 #include "OWPathAssetLink.h"
 
-IMPLEMENT_HIT_PROXY(HOWPathAssetNodeHitProxy, HHitProxy);
-IMPLEMENT_HIT_PROXY(HOWPathAssetLinkHitProxy, HHitProxy);
+IMPLEMENT_HIT_PROXY(HOWPathAsset_NodeHitProxy, HHitProxy);
+IMPLEMENT_HIT_PROXY(HOWPathAsset_LinkHitProxy, HHitProxy);
 
-HOWPathAssetNodeHitProxy::HOWPathAssetNodeHitProxy(UOWPathAssetNode* InRefObject) : 
+HOWPathAsset_NodeHitProxy::HOWPathAsset_NodeHitProxy(UOWPathAssetNode* InRefObject) : 
 	HHitProxy(HPP_UI),
 	RefObject(InRefObject) {}
 
-HOWPathAssetLinkHitProxy::HOWPathAssetLinkHitProxy(UOWPathAssetLink* InRefObject) :
+HOWPathAsset_LinkHitProxy::HOWPathAsset_LinkHitProxy(UOWPathAssetLink* InRefObject) :
 	HHitProxy(HPP_UI),
 	RefObject(InRefObject) {}
 

@@ -40,7 +40,8 @@ public:
 
 	virtual void PostLoad() override;
 	virtual void PreSave(FObjectPreSaveContext SaveContext) override;
-	UOWPathAssetLink* Link(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, EOWPathAssetDirectionType DirectionContext);
+    void CreateNode(const FVector& InLocation);
+    UOWPathAssetLink* Link(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, EOWPathAssetDirectionType DirectionContext);
     UOWPathAssetLink* Unlink(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode);
     class UOWPathAssetLink* FindLink(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, EOWPathAssetDirectionType& OutDirectionContext);
     class UOWPathAssetLink* FindLink(const UOWPathAssetNode* LeftNode, const UOWPathAssetNode* RightNode, EOWPathAssetDirectionType& OutDirectionContext);

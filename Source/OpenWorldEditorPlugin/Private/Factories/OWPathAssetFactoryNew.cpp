@@ -15,7 +15,7 @@ UOWPathAssetFactoryNew::UOWPathAssetFactoryNew(const FObjectInitializer& ObjectI
 
 UObject* UOWPathAssetFactoryNew::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
 {
-	return NewObject<UOWPathAsset>(InParent, InClass, InName, Flags | RF_Transactional);
+	return NewObject<UOWPathAsset>(InParent, InClass, InName, Flags);
 }
 
 bool UOWPathAssetFactoryNew::ShouldShowInNewMenu() const

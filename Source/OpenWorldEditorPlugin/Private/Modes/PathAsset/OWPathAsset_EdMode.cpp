@@ -7,8 +7,8 @@
 #include "InteractiveToolManager.h"
 #include "OWPathAsset_EdModeToolkit.h"
 #include "Tools/OWPathAsset_LinkTool.h"
-#include "Tools/OWPathAssetSelectTool.h"
-#include "Tools/OWPathAssetCreateNodeTool.h"
+#include "Tools/OWPathAsset_SelectTool.h"
+#include "Tools/OWPathAsset_CreateTool.h"
 
 const FEditorModeID UOWPathAsset_EdMode::EM_OpenWorldEdModeId = TEXT("EM_OpenWorldEdModeId");
 const FName UOWPathAsset_EdMode::PathAssetSelect_Tool = FName("OpenWorldEdMode_PathAssetSelect_Tool");
@@ -17,7 +17,7 @@ const FName UOWPathAsset_EdMode::PathAssetConnection_Tool = FName("OpenWorldEdMo
 
 UOWPathAsset_EdMode::UOWPathAsset_EdMode()
 {
-	Info = FEditorModeInfo(EM_OpenWorldEdModeId, FText::FromString("OpenWorld Editor"), FSlateIcon(FOpenWorldEditorPluginStyle::Get().GetStyleSetName(), "OpenWorldEdMode", "OpenWorldEdMode.small"), true);
+	Info = FEditorModeInfo(EM_OpenWorldEdModeId, FText::FromString("OpenWorld PathAsset Editor"), FSlateIcon(FOpenWorldEditorPluginStyle::Get().GetStyleSetName(), "PathAsset_EdMode", "PathAsset_EdMode.Small"), true);
 	PathAssetBeingEdited = nullptr;
 }
 
@@ -43,9 +43,9 @@ void UOWPathAsset_EdMode::Enter()
 	});
 	AddModePropertyObject(ModeProperties);
 
-	RegisterTool(UICommands.PathAsset_SelectTool, PathAssetSelect_Tool.ToString(), NewObject<UOWPathAssetSelectToolBuilder>(this));
-	RegisterTool(UICommands.PathAsset_CreateTool, PathAssetCreateNode_Tool.ToString(), NewObject<UOWPathAssetCreateNodeToolBuilder>(this));
-	RegisterTool(UICommands.PathAsset_LinkTool, PathAssetConnection_Tool.ToString(), NewObject<UOWPathAsset_LinkToolBuilder>(this));
+	RegisterTool(UICommands.SelectTool, PathAssetSelect_Tool.ToString(), NewObject<UOWPathAsset_SelectToolBuilder>(this));
+	RegisterTool(UICommands.CreateTool, PathAssetCreateNode_Tool.ToString(), NewObject<UOWPathAsset_CreateToolBuilder>(this));
+	RegisterTool(UICommands.LinkTool, PathAssetConnection_Tool.ToString(), NewObject<UOWPathAsset_LinkToolBuilder>(this));
 
 	GetToolManager()->SelectActiveToolType(EToolSide::Left, PathAssetSelect_Tool.ToString());
 }
@@ -116,7 +116,7 @@ void UOWPathAsset_EdMode::ClearModePropertyObject()
 
 void UOWPathAsset_EdMode::OnToolStarted(UInteractiveToolManager* Manager, UInteractiveTool* Tool)
 {
-	FOWPathAssetSelectToolActionCommands::Get().BindCommandsForCurrentTool(Toolkit->GetToolkitCommands(), Tool);
+	FOWPathAsset_SelectToolActionCommands::Get().BindCommandsForCurrentTool(Toolkit->GetToolkitCommands(), Tool);
 
 	UOWPathAsset_BaseTool* BaseTool = Cast<UOWPathAsset_BaseTool>(Tool);
 	OnPathAssetSelected.AddUObject(BaseTool, &UOWPathAsset_BaseTool::SetAsset);
@@ -125,8 +125,8 @@ void UOWPathAsset_EdMode::OnToolStarted(UInteractiveToolManager* Manager, UInter
 
 void UOWPathAsset_EdMode::OnToolEnded(UInteractiveToolManager* Manager, UInteractiveTool* Tool)
 {
-	if (ExactCast<UOWPathAssetSelectTool>(Tool)) {
-		FOWPathAssetSelectToolActionCommands::Get().UnbindActiveCommands(Toolkit->GetToolkitCommands());
+	if (ExactCast<UOWPathAsset_SelectTool>(Tool)) {
+		FOWPathAsset_SelectToolActionCommands::Get().UnbindActiveCommands(Toolkit->GetToolkitCommands());
 	}
 
 	OnPathAssetSelected.RemoveAll(Tool);

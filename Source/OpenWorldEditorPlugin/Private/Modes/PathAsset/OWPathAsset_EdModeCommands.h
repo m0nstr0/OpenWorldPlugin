@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OpenWorldEditorPluginStyle.h"
 #include "Framework/Commands/Commands.h"
 #include "Framework/Commands/UICommandInfo.h"
 
@@ -14,10 +15,10 @@ class FOWPathAsset_EdModeCommands : public TCommands<FOWPathAsset_EdModeCommands
 public:
 	FOWPathAsset_EdModeCommands()
 		: TCommands<FOWPathAsset_EdModeCommands>(
-			TEXT("OpenWorldEdMode"),
+			TEXT("PathAsset_EdMode"),
 			FText::FromString(TEXT("Open World Path Asset Editor")),
 			NAME_None,
-			FName("OpenWorldPlugin")
+			FOpenWorldEditorPluginStyle::Get().GetStyleSetName()
 			)
 	{}
 
@@ -26,9 +27,9 @@ public:
 	static TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> GetCommands() { return Get().Commands; }
 
 public:
-	TSharedPtr<FUICommandInfo> PathAsset_SelectTool;
-	TSharedPtr<FUICommandInfo> PathAsset_CreateTool;
-	TSharedPtr<FUICommandInfo> PathAsset_LinkTool;
+	TSharedPtr<FUICommandInfo> SelectTool;
+	TSharedPtr<FUICommandInfo> CreateTool;
+	TSharedPtr<FUICommandInfo> LinkTool;
 protected:
 	TMap<FName, TArray<TSharedPtr<FUICommandInfo>>> Commands;
 };

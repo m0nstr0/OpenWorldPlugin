@@ -6,16 +6,15 @@
 #include "InteractiveTool.h"
 #include "InteractiveToolBuilder.h"
 #include "BaseBehaviors/BehaviorTargetInterfaces.h"
-#include "Tools/InteractiveToolsCommands.h"
 #include "OWPathAsset_BaseTool.h"
-#include "OWPathAssetCreateNodeTool.generated.h"
+#include "OWPathAsset_CreateTool.generated.h"
 
 
 /**
  * Builder for UOWPathAssetInteractiveTool
  */
 UCLASS()
-class UOWPathAssetCreateNodeToolBuilder : public UInteractiveToolBuilder
+class UOWPathAsset_CreateToolBuilder : public UInteractiveToolBuilder
 {
 	GENERATED_BODY()
 
@@ -29,32 +28,31 @@ public:
  *
  */
 UCLASS()
-class UOWPathAssetCreateNodeTool : public UOWPathAsset_BaseTool, public IHoverBehaviorTarget, public IClickBehaviorTarget
+class UOWPathAsset_CreateTool : public UOWPathAsset_BaseTool, public IHoverBehaviorTarget, public IClickBehaviorTarget
 {
 	GENERATED_BODY()
 
 public:
 	virtual void Setup() override;
-	virtual void Shutdown(EToolShutdownType ShutdownType) override;
 	virtual void Render(IToolsContextRenderAPI* RenderAPI) override;
     FHitResult TraceForNodePlacement(const FInputDeviceRay& PressPos) const;
 
     /* IHoverBehaviorTarget */
-    virtual FInputRayHit BeginHoverSequenceHitTest(const FInputDeviceRay& PressPos) override;
-    virtual void OnBeginHover(const FInputDeviceRay& DevicePos) override;
+	virtual FInputRayHit BeginHoverSequenceHitTest(const FInputDeviceRay& PressPos) override { return  FInputRayHit(0.f); }
+    virtual void OnBeginHover(const FInputDeviceRay& DevicePos) override {}
     virtual bool OnUpdateHover(const FInputDeviceRay& DevicePos) override;
-	virtual void OnEndHover() override {};
+	virtual void OnEndHover() override {}
 	/* IHoverBehaviorTarget */
 
 	/* IClickBehaviorTarget */
-	virtual FInputRayHit IsHitByClick(const FInputDeviceRay& ClickPos) override;
-	virtual void OnClicked(const FInputDeviceRay& ClickPos) override;
+	virtual FInputRayHit IsHitByClick(const FInputDeviceRay& ClickPos) override { return  FInputRayHit(0.f); }
+    virtual void OnClicked(const FInputDeviceRay& ClickPos) override;
 	/* IClickBehaviorTarget */
 
 private:
 	void AddNodeAtLocation(const FVector& InNodeLocation) const;
-private:
-	FVector PlaceHolderPosition;
+
+	FVector PlaceHolderLocation;
 };
 
 

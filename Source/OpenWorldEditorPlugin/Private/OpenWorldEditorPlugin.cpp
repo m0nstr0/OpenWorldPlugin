@@ -8,7 +8,7 @@
 #include "Styling/SlateStyleRegistry.h"
 #include "OpenWorldEditorPluginStyle.h"
 #include "Modes/PathAsset/OWPathAsset_EdModeCommands.h"
-#include "Modes/PathAsset/Tools/OWPathAssetSelectTool.h"
+#include "Modes/PathAsset/Tools/OWPathAsset_SelectTool.h"
 
 #define LOCTEXT_NAMESPACE "FOpenWorldEditorPluginModule"
 
@@ -27,14 +27,14 @@ void FOpenWorldEditorPluginModule::StartupModule()
 
 void FOpenWorldEditorPluginModule::OnPostEngineInit()
 {
-	FOWPathAssetSelectToolActionCommands::Register();
+	FOWPathAsset_SelectToolActionCommands::Register();
 }
 
 void FOpenWorldEditorPluginModule::ShutdownModule()
 {
 	FCoreDelegates::OnPostEngineInit.RemoveAll(this);
 
-	FOWPathAssetSelectToolActionCommands::Unregister();
+	FOWPathAsset_SelectToolActionCommands::Unregister();
 	FOWPathAsset_EdModeCommands::Unregister();
 	UnRegisterAssetTypeAction();
 }

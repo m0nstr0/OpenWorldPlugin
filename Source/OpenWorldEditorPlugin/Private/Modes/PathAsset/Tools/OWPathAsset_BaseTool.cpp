@@ -33,14 +33,12 @@ void UOWPathAsset_BaseTool::Render(IToolsContextRenderAPI* RenderAPI)
 		return;
 	}
 
- 	constexpr FColor NormalColor(200, 200, 200);
-
 	for (UOWPathAssetNode* Node : GetAsset()->Nodes) {
-		RenderNode(NormalColor, Node, RenderAPI);
+		RenderNode(DefaultColor, Node, RenderAPI);
 	}
 
 	for (const UOWPathAssetLink* Link : GetAsset()->Links) {
-		RenderAPI->GetPrimitiveDrawInterface()->DrawLine(FVector(Link->LeftNode->Location), FVector(Link->RightNode->Location), NormalColor, SDPG_Foreground);
+		RenderAPI->GetPrimitiveDrawInterface()->DrawLine(FVector(Link->LeftNode->Location), FVector(Link->RightNode->Location), DefaultColor, SDPG_Foreground);
 	}
 }
 
@@ -70,7 +68,7 @@ void UOWPathAsset_BaseTool::RenderNode(const FColor DrawColor, UOWPathAssetNode*
 	const int32 CapsuleSides = FMath::Clamp<int32>(GetAsset()->Radius / 4.f, 16, 64);
     FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
 
-	PDI->SetHitProxy(new HOWPathAssetNodeHitProxy(PathAssetNode));
+	PDI->SetHitProxy(new HOWPathAsset_NodeHitProxy(PathAssetNode));
 	DrawWireCapsule(PDI, PathAssetNode->Location, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, DrawColor, GetAsset()->Radius, GetAsset()->Height / 2.f, CapsuleSides, SDPG_Foreground);
 	PDI->DrawPoint(PathAssetNode->Location, DrawColor, 30.f, SDPG_Foreground);
 	PDI->SetHitProxy(nullptr);
@@ -84,5 +82,25 @@ void UOWPathAsset_BaseTool::RenderNode(const FColor DrawColor, const FVector& Lo
 	PDI->SetHitProxy(nullptr);
 	DrawWireCapsule(PDI, Location, FVector::ForwardVector, FVector::RightVector, FVector::UpVector, DrawColor, GetAsset()->Radius, GetAsset()->Height / 2.f, CapsuleSides, SDPG_Foreground);
 	PDI->DrawPoint(Location, DrawColor, 30.f, SDPG_Foreground);
+	PDI->SetHitProxy(nullptr);
+}
+
+void UOWPathAsset_BaseTool::RenderLink(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, const EOWPathAssetDirectionType Direction, IToolsContextRenderAPI* RenderAPI) const
+{
+	FColor DrawColor = DefaultColor;
+	if (Direction == EOWPathAssetDirectionType::L2R) {
+		DrawColor = FirstColor;
+	}
+
+	if (Direction == EOWPathAssetDirectionType::R2L) {
+		DrawColor = SecondColor;
+	}
+
+    if (Direction == EOWPathAssetDirectionType::LAR) {
+		DrawColor = ThirdColor;
+	}
+		
+	FPrimitiveDrawInterface* PDI = RenderAPI->GetPrimitiveDrawInterface();
+	PDI->DrawLine(LeftNode->Location, RightNode->Location, DrawColor, SDPG_Foreground);
 	PDI->SetHitProxy(nullptr);
 }

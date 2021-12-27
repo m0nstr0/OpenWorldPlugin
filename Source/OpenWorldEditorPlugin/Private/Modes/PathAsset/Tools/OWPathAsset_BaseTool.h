@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InteractiveTool.h"
 #include "InteractiveToolBuilder.h"
+#include "OWPathAssetLink.h"
 #include "OWPathAsset_BaseTool.generated.h"
 
 
@@ -30,6 +31,12 @@ class UOWPathAsset_BaseTool : public UInteractiveTool
 	GENERATED_BODY()
 
 public:
+	const FColor DefaultColor = FColor::White;
+	const FColor FirstColor = FColor::Green;
+	const FColor SecondColor = FColor::Blue;
+	const FColor ThirdColor = FColor::Red;
+	const FColor FourthColor = FColor::Yellow;
+
 	/* UInteractiveTool */
 	void SetWorld(UWorld* World);
 	virtual void Render(IToolsContextRenderAPI* RenderAPI) override;
@@ -45,6 +52,7 @@ protected:
 	UWorld* TargetWorld = nullptr;
 	void RenderNode(const FColor DrawColor, class UOWPathAssetNode* PathAssetNode, IToolsContextRenderAPI* RenderAPI) const;
     void RenderNode(const FColor DrawColor, const FVector& Location, IToolsContextRenderAPI* RenderAPI) const;
+	void RenderLink(const TWeakObjectPtr<UOWPathAssetNode>& LeftNode, const TWeakObjectPtr<UOWPathAssetNode>& RightNode, const EOWPathAssetDirectionType Direction, IToolsContextRenderAPI* RenderAPI) const;
 
 private:
     TWeakObjectPtr<class UOWPathAsset> TargetPathAsset;

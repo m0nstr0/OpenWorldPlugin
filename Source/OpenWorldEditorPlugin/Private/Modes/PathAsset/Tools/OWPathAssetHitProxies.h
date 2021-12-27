@@ -9,12 +9,12 @@
 /**
  * 
  */
-struct HOWPathAssetNodeHitProxy final : public HHitProxy
+struct HOWPathAsset_NodeHitProxy final : public HHitProxy
 {
 public:
 	DECLARE_HIT_PROXY();
 
-	HOWPathAssetNodeHitProxy(class UOWPathAssetNode* InRefObject);
+	HOWPathAsset_NodeHitProxy(class UOWPathAssetNode* InRefObject);
 
 	class UOWPathAssetNode* RefObject;
 };
@@ -22,12 +22,12 @@ public:
 /**
  *
  */
-struct HOWPathAssetLinkHitProxy final : public HHitProxy
+struct HOWPathAsset_LinkHitProxy final : public HHitProxy
 {
 public:
 	DECLARE_HIT_PROXY();
 
-	HOWPathAssetLinkHitProxy(class UOWPathAssetLink* InRefObject);
+	HOWPathAsset_LinkHitProxy(class UOWPathAssetLink* InRefObject);
 
 	class UOWPathAssetLink* RefObject;
 };

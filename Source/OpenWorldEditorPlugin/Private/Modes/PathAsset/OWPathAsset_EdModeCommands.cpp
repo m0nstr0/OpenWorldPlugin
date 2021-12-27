@@ -10,13 +10,13 @@ void FOWPathAsset_EdModeCommands::RegisterCommands()
 {
 	TArray <TSharedPtr<FUICommandInfo>>& ToolCommands = Commands.FindOrAdd(UOWPathAsset_EdMode::PathAssetSelect_Tool);
 
-	UI_COMMAND(PathAsset_SelectTool, "Select", "Select Nodes", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::One));
-	ToolCommands.Add(PathAsset_SelectTool);
+	UI_COMMAND(SelectTool, "Select", "Select Nodes", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::One));
+	ToolCommands.Add(SelectTool);
 
-	UI_COMMAND(PathAsset_CreateTool, "Create", "Create Nodes", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::Two));
-	ToolCommands.Add(PathAsset_CreateTool);
+	UI_COMMAND(CreateTool, "Create", "Create Nodes", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::Two));
+	ToolCommands.Add(CreateTool);
 
-	UI_COMMAND(PathAsset_LinkTool, "Link", "Link Nodes", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::Three));
-	ToolCommands.Add(PathAsset_LinkTool);
+	UI_COMMAND(LinkTool, "Link", "Link Nodes", EUserInterfaceActionType::ToggleButton, FInputChord(EModifierKey::None, EKeys::Three));
+	ToolCommands.Add(LinkTool);
 }
 #undef LOCTEXT_NAMESPACE

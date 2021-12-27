@@ -40,31 +40,22 @@ void UOWPathAsset_LinkTool::Render(IToolsContextRenderAPI* RenderAPI)
 	UOWPathAsset_BaseTool::Render(RenderAPI);
 
 	if (LeftNode.IsValid())	{
-		RenderNode(FColor::Green, LeftNode.Get(), RenderAPI);
+		RenderNode(FirstColor, LeftNode.Get(), RenderAPI);
 	}
 
 	if (RightNode.IsValid()) {
-		RenderNode(FColor::Blue, RightNode.Get(), RenderAPI);
+		RenderNode(SecondColor, RightNode.Get(), RenderAPI);
 	}
 
 	if (LeftNode.IsValid() && RightNode.IsValid()) {
-		bool bCondDraw = true;
-		for (const TWeakObjectPtr<UOWPathAssetLink> Link : LeftNode->LinksFrom) {
-		    if (Link->LeftNode == RightNode.Get() || Link->RightNode == RightNode.Get()) {
-                const FColor DrawColor = Link->Direction == EOWPathAssetDirectionType::LAR ? FColor::Red : FColor::Green;
-				RenderAPI->GetPrimitiveDrawInterface()->DrawLine(LeftNode->Location, RightNode->Location, DrawColor, SDPG_Foreground);
-				bCondDraw = false;
-				break;
-		    }
-		}
-		if (bCondDraw) {
-			for (const TWeakObjectPtr<UOWPathAssetLink> Link : RightNode->LinksFrom) {
-				if (Link->LeftNode == LeftNode.Get() || Link->RightNode == LeftNode.Get()) {
-                    const FColor DrawColor = Link->Direction == EOWPathAssetDirectionType::LAR ? FColor::Red : FColor::Blue;
-					RenderAPI->GetPrimitiveDrawInterface()->DrawLine(LeftNode->Location, RightNode->Location, DrawColor, SDPG_Foreground);
-					break;
-				}
+		if (const UOWPathAssetLink* Link = GetAsset()->FindLink(LeftNode.Get(), RightNode.Get())) {
+			EOWPathAssetDirectionType Direction = Link->Direction;
+			if (Link->LeftNode == RightNode.Get() && Link->Direction != EOWPathAssetDirectionType::LAR) {
+				Direction = Link->Direction == EOWPathAssetDirectionType::L2R ? EOWPathAssetDirectionType::R2L : EOWPathAssetDirectionType::L2R;
 			}
+			RenderLink(LeftNode, RightNode, Direction, RenderAPI);
+		} else {
+			RenderAPI->GetPrimitiveDrawInterface()->DrawLine(LeftNode->Location, RightNode->Location, FourthColor, SDPG_Foreground);
 		}
 	}
 }
@@ -73,8 +64,8 @@ void UOWPathAsset_LinkTool::OnClicked(const FInputDeviceRay& ClickPos)
 {
 	if (FViewport* Viewport = GEditor->GetActiveViewport()) {
 		HHitProxy* HitProxy = Viewport->GetHitProxy(Viewport->GetMouseX(), Viewport->GetMouseY());
-		if (HitProxy && HitProxy->IsA(HOWPathAssetNodeHitProxy::StaticGetType())) {
-			return SetNode(static_cast<HOWPathAssetNodeHitProxy*>(HitProxy)->RefObject);
+		if (HitProxy && HitProxy->IsA(HOWPathAsset_NodeHitProxy::StaticGetType())) {
+			return SetNode(static_cast<HOWPathAsset_NodeHitProxy*>(HitProxy)->RefObject);
 		}
 	}
 	SetNode(nullptr);
@@ -147,7 +138,12 @@ void UOWPathAsset_LinkTool::Link(EOWPathAssetDirectionType Direction)
 		return;
 	}
 
+	EOWPathAssetDirectionType OldDirection = EOWPathAssetDirectionType::LAR;
 	const UOWPathAssetLink* Link = GetAsset()->FindLink(LeftNode.Get(), RightNode.Get());
+	if (Link) {
+		OldDirection = Link->Direction;
+	}
+
 	if (UOWPathAssetLink* NewLink = Link_Internal(LeftNode, RightNode, Direction)) {
 		if (NewLink != Link) {
 			GetToolManager()->EmitObjectChange(
@@ -158,7 +154,7 @@ void UOWPathAsset_LinkTool::Link(EOWPathAssetDirectionType Direction)
 		} else {
 			GetToolManager()->EmitObjectChange(
 				this,
-				MakeUnique<FOWPathAsset_LinkToolLinkChangeDirectionCommand>(LeftNode, RightNode, Link->Direction, Direction),
+				MakeUnique<FOWPathAsset_LinkToolLinkChangeDirectionCommand>(LeftNode, RightNode, NewLink->Direction, OldDirection),
 				FText::FromString("Change Link Direction")
 			);
 		}
