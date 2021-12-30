@@ -9,9 +9,13 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class OPENWORLDPLUGIN_API UOWPathAssetTask : public UObject
 {
 	GENERATED_BODY()
-	
+
+public:
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+    void OnEnter(ACharacter* Character);
 };

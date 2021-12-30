@@ -10,6 +10,7 @@
 #include "CollisionQueryParams.h"
 #include "SceneManagement.h"
 #include "LevelEditorViewport.h"
+#include "BaseBehaviors/SingleClickBehavior.h"
 #include "BaseGizmos/CombinedTransformGizmo.h"
 #include "BaseGizmos/TransformProxy.h"
 
@@ -48,6 +49,10 @@ void UOWPathAsset_SelectTool::Setup()
 	SelectionContext = NewObject<UOWPathAssetSelectToolSelectionContext>(this);
 	SelectionContext->SetFlags(EObjectFlags::RF_Transactional);
 	SelectionContext->Setup(this);
+
+	USingleClickInputBehavior* MouseClickBehavior = NewObject<USingleClickInputBehavior>();
+	MouseClickBehavior->Initialize(this);
+	AddInputBehavior(MouseClickBehavior);
 }
 
 void UOWPathAsset_SelectTool::Shutdown(EToolShutdownType ShutdownType)
@@ -109,6 +114,16 @@ void UOWPathAsset_SelectTool::DoSelectAction()
 void UOWPathAsset_SelectTool::DoSnapAction() const
 {
 
+}
+
+void UOWPathAsset_SelectTool::OnClicked(const FInputDeviceRay& ClickPos)
+{
+	if (FViewport* Viewport = GEditor->GetActiveViewport()) {
+		HHitProxy* HitProxy = Viewport->GetHitProxy(Viewport->GetMouseX(), Viewport->GetMouseY());
+		if (HitProxy && HitProxy->IsA(HOWPathAsset_NodeHitProxy::StaticGetType())) {
+			SelectionContext->SelectNode(static_cast<HOWPathAsset_NodeHitProxy*>(HitProxy)->RefObject);
+		}
+	}
 }
 
 void UOWPathAssetSelectToolSelectionContext::Setup(UOWPathAsset_SelectTool* InOwningTool)

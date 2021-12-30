@@ -91,7 +91,7 @@ public:
 };
 
 UCLASS()
-class UOWPathAsset_SelectTool : public UOWPathAsset_BaseTool
+class UOWPathAsset_SelectTool : public UOWPathAsset_BaseTool, public IClickBehaviorTarget
 {
 	GENERATED_BODY()
 
@@ -109,7 +109,9 @@ protected:
 	void DoSelectAction();
 	void DoFocusAction() const;
 	void DoSnapAction() const;
-
+public:
+	virtual FInputRayHit IsHitByClick(const FInputDeviceRay& ClickPos) override { return FInputRayHit(0.f); };
+    virtual void OnClicked(const FInputDeviceRay& ClickPos) override;
 private:
 	UPROPERTY(Transient)
 	TObjectPtr<class UCombinedTransformGizmo> TransformGizmo;
